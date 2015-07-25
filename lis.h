@@ -52,6 +52,8 @@ void lis_push_front(PLIS plis, const void *data, size_t data_size);
 void lis_push_back(PLIS plis, const void *data, size_t data_size);
 void lis_pop_front(PLIS plis);
 
+void lis_insert(PLIS plis, PNOD pnod,
+                size_t count, const void *data, size_t data_size);
 void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size);
 
 void lis_erase(PLIS plis, PNOD pnod);

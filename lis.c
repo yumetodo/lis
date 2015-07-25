@@ -305,6 +305,52 @@ void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size)
     assert(lis_valid(plis));
 } /* lis_resize */
 
+void lis_insert(PLIS plis, PNOD pnod,
+                size_t count, const void *data, size_t data_size)
+{
+    PNOD added, prev;
+
+    assert(lis_valid(plis));
+    assert(lis_contains(plis, pnod) || pnod == NULL);
+
+    if (pnod == NULL)
+    {
+        lis_resize(plis, plis->count + count, data, data_size);
+        return;
+    }
+
+    prev = plis->first;
+    while (prev)
+    {
+        if (prev->next == pnod)
+            break;
+        prev = prev->next;
+    }
+
+    while (count-- > 0)
+    {
+        added = nod_new(data, data_size);
+        if (added == NULL)
+        {
+            lis_status_bad(plis);
+            return;
+        }
+        /*
+         * prev -- pnod -- pnod->next
+         *         ^added
+         *
+         * prev -- added -- pnod -- pnod->next
+         */
+        if (prev)
+            prev->next = added;
+        else
+            plis->first = added;
+        added->next = pnod;
+        pnod = added;
+        plis->count += 1;
+    }
+}
+
 void lis_erase(PLIS plis, PNOD pnod)
 {
     PNOD p, prev;
@@ -669,7 +715,7 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
         puts("");
 
         n = 999;
-        lis_resize(&lis2, 4, &n, siz);
+        lis_insert(&lis2, lis2.last, 4, &n, siz);
 
         printf("lis2: ");
         lis_foreach(&lis2, print_long);
