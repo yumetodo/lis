@@ -36,47 +36,53 @@ extern "C"
 /****************************************************************************/
 /* functions */
 
-void lis_init(PLIS plst);
+void lis_init(PLIS plis);
 void lis_copy(PLIS dest, PLIS src);
-void lis_destroy(PLIS plst);
-void lis_clear(PLIS plst);
+void lis_destroy(PLIS plis);
+void lis_clear(PLIS plis);
 
 PLIS lis_new(void);
-void lis_delete(PLIS plst);
-PLIS lis_clone(PLIS plst);
+void lis_delete(PLIS plis);
+PLIS lis_clone(PLIS plis);
 
-void *lis_front(PLIS plst);
-void *lis_back(PLIS plst);
+void *lis_front(PLIS plis);
+void *lis_back(PLIS plis);
 
-void lis_push_front(PLIS plst, const void *data, size_t data_size);
-void lis_push_back(PLIS plst, const void *data, size_t data_size);
-void lis_pop_front(PLIS plst);
+void lis_push_front(PLIS plis, const void *data, size_t data_size);
+void lis_push_back(PLIS plis, const void *data, size_t data_size);
+void lis_pop_front(PLIS plis);
 
-void lis_resize(PLIS plst, size_t count, const void *data, size_t data_size);
+void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size);
 
-void lis_erase(PLIS plst, PNOD pnod);
-void lis_remove(PLIS plst, const void *data, LIS_DATA_COMPARE compare);
+void lis_erase(PLIS plis, PNOD pnod);
+void lis_remove(PLIS plis, const void *data, LIS_DATA_COMPARE compare);
 
-void lis_foreach(PLIS plst, LIS_FOREACH fn);
+void lis_foreach(PLIS plis, LIS_FOREACH fn);
 
-void lis_swap(PLIS plst1, PLIS plst2);
+PNOD lis_merge_nod(PNOD a, PNOD b, LIS_DATA_COMPARE compare);
+PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare);
+
+void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare);
+void lis_sort(PLIS plis, LIS_DATA_COMPARE compare);
+
+void lis_swap(PLIS plis1, PLIS plis2);
 
 #ifndef NDEBUG
-    int lis_valid(PLIS plst);
-    int lis_contains(PLIS plst, PNOD pnod);
-    int lis_is_sorted(PLIS plst, LIS_DATA_COMPARE compare);
+    int lis_valid(PLIS plis);
+    int lis_contains(PLIS plis, PNOD pnod);
+    int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare);
 #endif
 
 /****************************************************************************/
 /* function macros */
 
-#define lis_empty(plst)     ((plst)->count == 0)
-#define lis_size(plst)      ((plst)->count)
+#define lis_empty(plis)     ((plis)->count == 0)
+#define lis_size(plis)      ((plis)->count)
 
-#define lis_front(plst)     nod_data((plst)->first)
-#define lis_back(plst)      nod_data((plst)->last)
+#define lis_front(plis)     nod_data((plis)->first)
+#define lis_back(plis)      nod_data((plis)->last)
 
-#define lis_destroy(plst)   nod_delete_chain((plst)->first)
+#define lis_destroy(plis)   nod_delete_chain((plis)->first)
 
 /****************************************************************************/
 /* C/C++ switching */

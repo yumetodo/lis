@@ -97,7 +97,7 @@ PNOD nod_push_head(PNOD first, const void *data, size_t data_size)
     return first;
 }
 
-void nod_chain_reset_prevs(PNOD pnod)
+PNOD nod_chain_reset_prevs(PNOD pnod)
 {
     PNOD prev = NULL;
     while (pnod)
@@ -106,6 +106,18 @@ void nod_chain_reset_prevs(PNOD pnod)
         prev = pnod;
         pnod = pnod->next;
     }
+    return prev;
+}
+
+PNOD nod_chain_last(PNOD pnod)
+{
+    PNOD prev = NULL;
+    while (pnod)
+    {
+        prev = pnod;
+        pnod = pnod->next;
+    }
+    return prev;
 }
 
 /****************************************************************************/

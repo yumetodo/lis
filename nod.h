@@ -39,7 +39,8 @@ void nod_delete_chain(PNOD pnod);
 
 PNOD nod_push_head(PNOD first, const void *data, size_t data_size);
 
-void nod_chain_reset_prevs(PNOD pnod);
+PNOD nod_chain_reset_prevs(PNOD pnod);
+PNOD nod_chain_last(PNOD pnod);
 
 /****************************************************************************/
 /* function macros */

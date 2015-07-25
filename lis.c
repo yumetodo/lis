@@ -408,16 +408,16 @@ void lis_remove(PLIS plis, const void *data, LIS_DATA_COMPARE compare)
 
 void lis_swap(PLIS plis1, PLIS plis2)
 {
-    LIS lst;
+    LIS lis;
 
     assert(lis_valid(plis1));
     assert(lis_valid(plis2));
     if (plis1 == plis2)
         return;
 
-    lst = *plis1;
+    lis = *plis1;
     *plis1 = *plis2;
-    *plis2 = lst;
+    *plis2 = lis;
 
     assert(lis_valid(plis1));
     assert(lis_valid(plis2));
@@ -435,20 +435,98 @@ void lis_foreach(PLIS plis, LIS_FOREACH fn)
     }
 } /* lis_foreach */
 
+PNOD lis_merge_nod(PNOD a, PNOD b, LIS_DATA_COMPARE compare)
+{
+    NOD head;
+    PNOD x = &head;
+
+    while (a && b)
+    {
+        if (compare(nod_data(a), nod_data(b)) < 0)
+        {
+            x->next = a;
+            a = a->next;
+            x = x->next;
+        }
+        else
+        {
+            x->next = b;
+            b = b->next;
+            x = x->next;
+        }
+    }
+
+    if (a)
+        x->next = a;
+    else
+        x->next = b;
+
+    return head.next;
+} /* lis_merge_nod */
+
 void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare)
 {
+    PNOD pnod;
     assert(lis_is_sorted(plis1, compare));
     assert(lis_is_sorted(plis2, compare));
 
-    /* TODO: */
+    pnod = lis_merge_nod(plis1->first, plis2->first, compare);
+
+    plis1->first = pnod;
+    plis1->last = nod_chain_last(pnod);
+    plis1->count += plis2->count;
+
+    plis2->first = NULL;
+    plis2->last = NULL;
+    plis2->count = 0;
 
     assert(lis_is_sorted(plis1, compare));
-}
+    assert(lis_size(plis2) == 0);
+} /* lis_merge */
+
+PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare)
+{
+    PNOD a, b;
+
+    if (pnod == NULL || pnod->next == NULL)
+        return pnod;
+
+    a = pnod;
+    b = a->next->next;
+
+    while (b)
+    {
+        a = a->next;
+        b = b->next;
+        if (b)
+            b = b->next;
+    }
+
+    b = a->next;
+    a->next = NULL;
+
+    a = lis_sort_nod(pnod, compare);
+    b = lis_sort_nod(b, compare);
+    return lis_merge_nod(a, b, compare);
+} /* lis_sort_nod */
 
 void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
 {
-    /* TODO: */
-}
+    PNOD pnod;
+
+    assert(lis_valid(plis));
+    if (plis->count <= 1)
+        return;
+
+    pnod = plis->first;
+    pnod = lis_sort_nod(pnod, compare);
+
+    plis->first = pnod;
+    plis->last = nod_chain_last(pnod);
+
+    assert(lis_valid(plis));
+    assert(lis_is_sorted(plis, compare));
+} /* lis_sort */
 
 /****************************************************************************/
 /* test and sample */
@@ -478,26 +556,26 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
 
     int main(void)
     {
-        LIS lst1, lst2;
+        LIS lis1, lis2;
         long n;
         PNOD pnod;
         size_t siz = sizeof(long);
 
-        lis_init(&lst1);
-        lis_init(&lst2);
+        lis_init(&lis1);
+        lis_init(&lis2);
 
         n = 1;
-        lis_push_back(&lst1, &n, siz);
+        lis_push_back(&lis1, &n, siz);
         n = 2;
-        lis_push_back(&lst1, &n, siz);
+        lis_push_back(&lis1, &n, siz);
         n = 0;
-        lis_push_front(&lst1, &n, siz);
+        lis_push_front(&lis1, &n, siz);
 
-        printf("lst1: ");
-        lis_foreach(&lst1, print_long);
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
         puts("");
 
-        pnod = lst1.first;
+        pnod = lis1.first;
 
         n = 0;
         assert(memcmp(nod_data(pnod), &n, siz) == 0);
@@ -510,76 +588,89 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
         pnod = pnod->next;
         assert(pnod == NULL);
 
-        assert(lis_is_sorted(&lst1, compare_long));
+        assert(lis_is_sorted(&lis1, compare_long));
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
-        lis_pop_front(&lst1);
+        lis_pop_front(&lis1);
 
-        printf("lst1: ");
-        lis_foreach(&lst1, print_long);
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
         puts("");
 
         n = 4;
-        lis_push_front(&lst1, &n, siz);
+        lis_push_front(&lis1, &n, siz);
         n = 9;
-        lis_push_back(&lst1, &n, siz);
+        lis_push_back(&lis1, &n, siz);
 
-        lis_copy(&lst2, &lst1);
+        lis_copy(&lis2, &lis1);
 
-        printf("lst1: ");
-        lis_foreach(&lst1, print_long);
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
         puts("");
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
-        lis_clear(&lst2);
+        lis_clear(&lis2);
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
         n = 2;
-        lis_push_front(&lst2, &n, siz);
+        lis_push_front(&lis2, &n, siz);
         n = 4;
-        lis_push_back(&lst2, &n, siz);
+        lis_push_back(&lis2, &n, siz);
         n = 4;
-        lis_push_back(&lst2, &n, siz);
+        lis_push_back(&lis2, &n, siz);
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
-        lis_unique(&lst2, compare_long);
+        lis_unique(&lis2, compare_long);
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
-        lis_reverse(&lst2);
+        lis_reverse(&lis2);
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
         n = 999;
-        lis_resize(&lst2, 4, &n, siz);
+        lis_resize(&lis2, 4, &n, siz);
 
-        printf("lst2: ");
-        lis_foreach(&lst2, print_long);
+        printf("lis2: ");
+        lis_foreach(&lis2, print_long);
         puts("");
 
-        lis_copy(&lst1, &lst2);
-        printf("lst1: ");
-        lis_foreach(&lst1, print_long);
+        lis_copy(&lis1, &lis2);
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
         puts("");
 
-        lis_destroy(&lst1);
-        lis_destroy(&lst2);
+        lis_sort(&lis1, compare_long);
+
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
+        puts("");
+
+        lis_sort(&lis2, compare_long);
+        lis_merge(&lis1, &lis2, compare_long);
+
+        printf("lis1: ");
+        lis_foreach(&lis1, print_long);
+        puts("");
+
+        lis_destroy(&lis1);
+        lis_destroy(&lis2);
 
         return 0;
     }
