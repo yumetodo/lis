@@ -3,6 +3,7 @@
 /****************************************************************************/
 /* [History]                                                                */
 /* 2015.07.22: katahiromz creates v0.                                       */
+/* 2015.07.25: katahiromz creates v1.                                       */
 /****************************************************************************/
 
 #ifdef __cplusplus
@@ -97,7 +98,7 @@ PNOD nod_push_head(PNOD first, const void *data, size_t data_size)
     return first;
 }
 
-PNOD nod_chain_reset_prevs(PNOD pnod)
+PNOD nod_chain_fix_prevs(PNOD pnod)
 {
     PNOD prev = NULL;
     while (pnod)

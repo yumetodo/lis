@@ -3,7 +3,7 @@
 /****************************************************************************/
 
 #ifndef KATAHIROMZ_LIS_H
-#define KATAHIROMZ_LIS_H    0  /* Version 0 */
+#define KATAHIROMZ_LIS_H    1  /* Version 1 */
 
 #ifndef KATAHIROMZ_NOD_H
     #include "nod.h"
@@ -67,11 +67,10 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare);
 
 void lis_swap(PLIS plis1, PLIS plis2);
 
-#ifndef NDEBUG
-    int lis_valid(PLIS plis);
-    int lis_contains(PLIS plis, PNOD pnod);
-    int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare);
-#endif
+int lis_valid(PLIS plis);
+int lis_has_loop(PLIS plis);
+int lis_contains(PLIS plis, PNOD pnod);
+int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare);
 
 /****************************************************************************/
 /* function macros */

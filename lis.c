@@ -3,6 +3,7 @@
 /****************************************************************************/
 /* [History]                                                                */
 /* 2015.07.22: katahiromz creates v0.                                       */
+/* 2015.07.25: katahiromz creates v1.                                       */
 /****************************************************************************/
 
 #ifdef __cplusplus
@@ -20,64 +21,82 @@
 
 /****************************************************************************/
 
-#ifndef NDEBUG
-    int lis_valid(PLIS plis)
-    {
-        if (plis == NULL)
-            return 0;
-
-        if (nod_chain_length(plis->first) != plis->count)
-            return 0;
-
-        if (plis->count == 0)
-        {
-            if (plis->first || plis->last)
-                return 0;
-        }
-        else
-        {
-            if (plis->first == NULL || plis->last == NULL)
-                return 0;
-        }
-
-        return 1;
-    } /* lis_valid */
-
-    int lis_contains(PLIS plis, PNOD pnod)
-    {
-        PNOD p;
-        assert(lis_valid(plis));
-        p = plis->first;
-        while (p)
-        {
-            if (p == pnod)
-                return 1;
-            p = p->next;
-        }
+int lis_valid(PLIS plis)
+{
+    if (plis == NULL)
         return 0;
-    } /* lis_contains */
 
-    int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare)
+    if (lis_has_loop(plis))
+        return 0;
+
+    if (plis->count == 0)
     {
-        PNOD pnod, next;
+        if (plis->first || plis->last)
+            return 0;
+    }
+    else
+    {
+        if (plis->first == NULL || plis->last == NULL)
+            return 0;
+    }
 
-        assert(lis_valid(plis));
+    return 1;
+} /* lis_valid */
 
-        pnod = plis->first;
-        while (pnod)
-        {
-            next = pnod->next;
-            if (next == NULL)
-                break;
-            if ((*compare)(nod_data(pnod), nod_data(next)) > 0)
-                return 0;
-            pnod = next;
-        }
+int lis_has_loop(PLIS plis)
+{
+    int i, count;
+    PNOD pnod;
 
-        assert(lis_valid(plis));
+    count = plis->count + 1;
+    pnod = plis->first;
+    for (i = 0; i < count; ++i) {
+        if (pnod == NULL)
+            break;
+        pnod = pnod->next;
+    }
+    if (pnod != NULL && i != plis->count)
         return 1;
-    } /* lis_is_sorted */
-#endif  /* ndef NDEBUG */
+
+    return 0;
+} /* lis_has_loop */
+
+int lis_contains(PLIS plis, PNOD pnod)
+{
+    PNOD p;
+    assert(lis_valid(plis));
+    p = plis->first;
+    while (p)
+    {
+        if (p == pnod)
+            return 1;
+        p = p->next;
+    }
+    return 0;
+} /* lis_contains */
+
+int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare)
+{
+    PNOD pnod, next;
+
+    assert(lis_valid(plis));
+
+    pnod = plis->first;
+    while (pnod)
+    {
+        next = pnod->next;
+        if (next == NULL)
+            break;
+        if ((*compare)(nod_data(pnod), nod_data(next)) > 0)
+            return 0;
+        pnod = next;
+    }
+
+    assert(lis_valid(plis));
+    return 1;
+} /* lis_is_sorted */
+
+/****************************************************************************/
 
 void lis_init(PLIS plis)
 {
