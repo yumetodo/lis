@@ -305,15 +305,15 @@ void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size)
     assert(lis_valid(plis));
 } /* lis_resize */
 
-void lis_insert(PLIS plis, PNOD pnod,
+void lis_insert(PLIS plis, PNOD here,
                 size_t count, const void *data, size_t data_size)
 {
     PNOD added, prev;
 
     assert(lis_valid(plis));
-    assert(lis_contains(plis, pnod) || pnod == NULL);
+    assert(lis_contains(plis, here) || here == NULL);
 
-    if (pnod == NULL)
+    if (here == NULL)
     {
         lis_resize(plis, plis->count + count, data, data_size);
         return;
@@ -322,7 +322,7 @@ void lis_insert(PLIS plis, PNOD pnod,
     prev = plis->first;
     while (prev)
     {
-        if (prev->next == pnod)
+        if (prev->next == here)
             break;
         prev = prev->next;
     }
@@ -336,17 +336,17 @@ void lis_insert(PLIS plis, PNOD pnod,
             return;
         }
         /*
-         * prev -- pnod -- pnod->next
+         * prev -- here -- here->next
          *         ^added
          *
-         * prev -- added -- pnod -- pnod->next
+         * prev -- added -- here -- here->next
          */
         if (prev)
             prev->next = added;
         else
             plis->first = added;
-        added->next = pnod;
-        pnod = added;
+        added->next = here;
+        here = added;
         plis->count += 1;
     }
 }
