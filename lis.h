@@ -68,7 +68,7 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare);
 void lis_swap(PLIS plis1, PLIS plis2);
 
 int lis_valid(PLIS plis);
-int lis_check_length(PLIS plis);
+int lis_length_ok(PLIS plis);
 int lis_contains(PLIS plis, PNOD pnod);
 int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare);
 

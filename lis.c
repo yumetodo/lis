@@ -26,7 +26,7 @@ int lis_valid(PLIS plis)
     if (plis == NULL)
         return 0;
 
-    if (lis_check_length(plis))
+    if (!lis_length_ok(plis))
         return 0;
 
     if (plis->count == 0)
@@ -43,9 +43,9 @@ int lis_valid(PLIS plis)
     return 1;
 } /* lis_valid */
 
-int lis_check_length(PLIS plis)
+int lis_length_ok(PLIS plis)
 {
-    int i, count;
+    size_t i, count;
     PNOD pnod;
 
     count = plis->count + 1;
@@ -56,10 +56,10 @@ int lis_check_length(PLIS plis)
         pnod = pnod->next;
     }
     if (pnod != NULL && i != plis->count)
-        return 1;
+        return 0;
 
-    return 0;
-} /* lis_check_length */
+    return 1;
+} /* lis_length_ok */
 
 int lis_contains(PLIS plis, PNOD pnod)
 {
