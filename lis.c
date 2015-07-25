@@ -33,7 +33,7 @@ int lis_valid(PLIS plis)
     if (plis == NULL)
         return 0;
 
-    if (!lis_length_ok(plis))
+    if (!lis_length_valid(plis))
         return 0;
 
     if (plis->count == 0)
@@ -50,7 +50,7 @@ int lis_valid(PLIS plis)
     return 1;
 } /* lis_valid */
 
-int lis_length_ok(PLIS plis)
+int lis_length_valid(PLIS plis)
 {
     size_t i, count;
     PNOD pnod;
@@ -66,7 +66,7 @@ int lis_length_ok(PLIS plis)
         return 0;
 
     return 1;
-} /* lis_length_ok */
+} /* lis_length_valid */
 
 int lis_contains(PLIS plis, PNOD pnod)
 {
