@@ -26,7 +26,7 @@ int lis_valid(PLIS plis)
     if (plis == NULL)
         return 0;
 
-    if (lis_has_loop(plis))
+    if (lis_check_length(plis))
         return 0;
 
     if (plis->count == 0)
@@ -43,7 +43,7 @@ int lis_valid(PLIS plis)
     return 1;
 } /* lis_valid */
 
-int lis_has_loop(PLIS plis)
+int lis_check_length(PLIS plis)
 {
     int i, count;
     PNOD pnod;
@@ -59,7 +59,7 @@ int lis_has_loop(PLIS plis)
         return 1;
 
     return 0;
-} /* lis_has_loop */
+} /* lis_check_length */
 
 int lis_contains(PLIS plis, PNOD pnod)
 {
