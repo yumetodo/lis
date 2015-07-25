@@ -134,7 +134,7 @@ void lis_copy(PLIS dest, PLIS src)
         if (created == NULL)
         {
 #ifdef lis_status_bad
-            lis_status_bad(plis);
+            lis_status_bad(dest);
 #endif
             return;
         }
@@ -177,6 +177,12 @@ PLIS lis_new(void)
     {
         lis_init(plis);
         assert(lis_valid(plis));
+    }
+    else
+    {
+#ifdef lis_status_bad
+        lis_status_bad(NULL);
+#endif
     }
     return plis;
 } /* lis_new */
@@ -221,7 +227,7 @@ void lis_push_back(PLIS plis, const void *data, size_t data_size)
 
     assert(lis_valid(plis));
 
-    pnod = nod_new(data, data_size);    
+    pnod = nod_new(data, data_size);
     if (pnod == NULL)
     {
 #ifdef lis_status_bad
