@@ -460,31 +460,31 @@ void lis_foreach(PLIS plis, LIS_FOREACH fn)
     }
 } /* lis_foreach */
 
-PNOD lis_merge_nod(PNOD a, PNOD b, LIS_DATA_COMPARE compare)
+PNOD lis_merge_nod(PNOD x, PNOD y, LIS_DATA_COMPARE compare)
 {
     NOD head;
-    PNOD x = &head;
+    PNOD pnod = &head;
 
-    while (a && b)
+    while (x && y)
     {
-        if (compare(nod_data(a), nod_data(b)) < 0)
+        if (compare(nod_data(x), nod_data(y)) < 0)
         {
-            x->next = a;
-            a = a->next;
+            pnod->next = x;
             x = x->next;
+            pnod = pnod->next;
         }
         else
         {
-            x->next = b;
-            b = b->next;
-            x = x->next;
+            pnod->next = y;
+            y = y->next;
+            pnod = pnod->next;
         }
     }
 
-    if (a)
-        x->next = a;
+    if (x)
+        pnod->next = x;
     else
-        x->next = b;
+        pnod->next = y;
 
     return head.next;
 } /* lis_merge_nod */
@@ -511,28 +511,28 @@ void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare)
 
 PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare)
 {
-    PNOD a, b;
+    PNOD x, y;
 
     if (pnod == NULL || pnod->next == NULL)
         return pnod;
 
-    a = pnod;
-    b = a->next->next;
+    x = pnod;
+    y = x->next->next;
 
-    while (b)
+    while (y)
     {
-        a = a->next;
-        b = b->next;
-        if (b)
-            b = b->next;
+        x = x->next;
+        y = y->next;
+        if (y)
+            y = y->next;
     }
 
-    b = a->next;
-    a->next = NULL;
+    y = x->next;
+    x->next = NULL;
 
-    a = lis_sort_nod(pnod, compare);
-    b = lis_sort_nod(b, compare);
-    return lis_merge_nod(a, b, compare);
+    x = lis_sort_nod(pnod, compare);
+    y = lis_sort_nod(y, compare);
+    return lis_merge_nod(x, y, compare);
 } /* lis_sort_nod */
 
 void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)

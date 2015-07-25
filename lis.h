@@ -59,7 +59,7 @@ void lis_remove(PLIS plis, const void *data, LIS_DATA_COMPARE compare);
 
 void lis_foreach(PLIS plis, LIS_FOREACH fn);
 
-PNOD lis_merge_nod(PNOD a, PNOD b, LIS_DATA_COMPARE compare);
+PNOD lis_merge_nod(PNOD x, PNOD y, LIS_DATA_COMPARE compare);
 PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare);
 
 void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare);
