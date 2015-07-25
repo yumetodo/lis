@@ -702,4 +702,3 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
 #endif  /* def LIS_TEST */
 
 /****************************************************************************/
-
