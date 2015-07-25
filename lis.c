@@ -20,6 +20,13 @@
 #include "lis.h"
 
 /****************************************************************************/
+/* status checking */
+
+#ifndef lis_status_bad
+    #define lis_status_bad(plis)    /* empty */
+#endif
+
+/****************************************************************************/
 
 int lis_valid(PLIS plis)
 {
@@ -133,9 +140,7 @@ void lis_copy(PLIS dest, PLIS src)
         created = nod_clone(pnod);
         if (created == NULL)
         {
-#ifdef lis_status_bad
             lis_status_bad(dest);
-#endif
             return;
         }
         dest->last->next = created;
@@ -180,9 +185,7 @@ PLIS lis_new(void)
     }
     else
     {
-#ifdef lis_status_bad
         lis_status_bad(NULL);
-#endif
     }
     return plis;
 } /* lis_new */
@@ -201,9 +204,7 @@ void lis_push_front(PLIS plis, const void *data, size_t data_size)
     PNOD pnod = nod_new(data, data_size);
     if (pnod == NULL)
     {
-#ifdef lis_status_bad
         lis_status_bad(plis);
-#endif
         return;
     }
 
@@ -230,9 +231,7 @@ void lis_push_back(PLIS plis, const void *data, size_t data_size)
     pnod = nod_new(data, data_size);
     if (pnod == NULL)
     {
-#ifdef lis_status_bad
         lis_status_bad(plis);
-#endif
         return;
     }
 
