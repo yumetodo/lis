@@ -37,16 +37,12 @@ extern "C"
 /* functions */
 
 void lis_init(PLIS pl);
-void lis_copy(PLIS dest, PLIS src);
-void lis_destroy(PLIS pl);
+void lis_copy(PLIS dest, const LIS *src);
 void lis_clear(PLIS pl);
 
 PLIS lis_new(void);
 void lis_delete(PLIS pl);
 PLIS lis_clone(PLIS pl);
-
-void *lis_front(PLIS pl);
-void *lis_back(PLIS pl);
 
 void lis_push_front(PLIS pl, const void *data, size_t data_size);
 void lis_push_back(PLIS pl, const void *data, size_t data_size);

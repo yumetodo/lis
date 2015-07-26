@@ -116,7 +116,7 @@ int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
             break;
         }
 
-        if ((*compare)(nod_data(pn), nod_data(next)) > 0)
+        if ((*compare)(nod_const_data(pn), nod_const_data(next)) > 0)
         {
             ret = 0;
             break;
@@ -139,7 +139,7 @@ void lis_init(PLIS pl)
     assert(lis_valid(pl));
 } /* lis_init */
 
-void lis_copy(PLIS dest, PLIS src)
+void lis_copy(PLIS dest, const LIS *src)
 {
     PNOD pn, created;
 
@@ -360,11 +360,12 @@ void lis_insert(PLIS pl, PNOD here,
                 size_t count, const void *data, size_t data_size)
 {
     PNOD added, prev;
+    PNOD there = here;
 
     assert(lis_valid(pl));
-    assert(lis_contains(pl, here) != 0 || here == NULL);
+    assert(lis_contains(pl, there) != 0 || there == NULL);
 
-    if (here == NULL)
+    if (there == NULL)
     {
         lis_resize(pl, pl->count + count, data, data_size);
     }
@@ -373,7 +374,7 @@ void lis_insert(PLIS pl, PNOD here,
         prev = pl->first;
         while (prev != NULL)
         {
-            if (prev->next == here)
+            if (prev->next == there)
             {
                 break;
             }
@@ -391,10 +392,10 @@ void lis_insert(PLIS pl, PNOD here,
             }
 
             /*
-             * prev -- here -- here->next
+             * prev -- there -- there->next
              *         ^added
              *
-             * prev -- added -- here -- here->next
+             * prev -- added -- there -- there->next
              */
             if (prev != NULL)
             {
@@ -404,8 +405,8 @@ void lis_insert(PLIS pl, PNOD here,
             {
                 pl->first = added;
             }
-            added->next = here;
-            here = added;
+            added->next = there;
+            there = added;
             pl->count += 1U;
         }
     }
@@ -474,7 +475,7 @@ void lis_unique(PLIS pl, LIS_DATA_COMPARE compare)
     assert(lis_valid(pl));
     assert(compare != NULL);
 
-    if (pl->count > 0U)
+    if (pl->count > 1U)
     {
         for (pn = pl->first; pn != NULL; pn = pn->next)
         {
@@ -650,7 +651,7 @@ void lis_merge(PLIS pl1, PLIS pl2, LIS_DATA_COMPARE compare)
     pl2->count = 0U;
 
     assert(lis_is_sorted(pl1, compare));
-    assert(lis_size(pl2) == 0);
+    assert(lis_size(pl2) == 0U);
 } /* lis_merge */
 
 PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare)
