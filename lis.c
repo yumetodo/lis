@@ -27,17 +27,17 @@
 
 /****************************************************************************/
 
-int lis_valid(const LIS *pl)
+bool lis_valid(const LIS *pl)
 {
-    int ret = 1;
+    bool ret = true;
 
     if ((pl == NULL))
     {
-        ret = 0;
+        ret = false;
     }
     else if (lis_length_valid(pl) == 0)
     {
-        ret = 0;
+        ret = false;
     }
     else
     {
@@ -45,14 +45,14 @@ int lis_valid(const LIS *pl)
         {
             if ((pl->first != NULL) || (pl->last != NULL))
             {
-                ret = 0;
+                ret = false;
             }
         }
         else
         {
             if ((pl->first == NULL) || (pl->last == NULL))
             {
-                ret = 0;
+                ret = false;
             }
         }
     }
@@ -60,7 +60,7 @@ int lis_valid(const LIS *pl)
     return ret;
 } /* lis_valid */
 
-int lis_length_valid(const LIS *pl)
+bool lis_length_valid(const LIS *pl)
 {
     size_t i, count;
     PNOD pn;
@@ -79,10 +79,10 @@ int lis_length_valid(const LIS *pl)
     return ((pn == NULL) || (i == pl->count));
 } /* lis_length_valid */
 
-int lis_contains(const LIS *pl, const NOD *pn)
+bool lis_contains(const LIS *pl, const NOD *pn)
 {
     const NOD *p;
-    int ret = 0;
+    bool ret = false;
 
     assert(lis_valid(pl));
     p = pl->first;
@@ -90,7 +90,7 @@ int lis_contains(const LIS *pl, const NOD *pn)
     {
         if (p == pn)
         {
-            ret = 1;
+            ret = true;
             break;
         }
         p = p->next;
@@ -99,10 +99,10 @@ int lis_contains(const LIS *pl, const NOD *pn)
     return ret;
 } /* lis_contains */
 
-int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
+bool lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
 {
     PNOD pn, next;
-    int ret = 1;
+    bool ret = true;
 
     assert(lis_valid(pl));
     assert(compare != NULL);
@@ -118,7 +118,7 @@ int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
 
         if ((*compare)(nod_const_data(pn), nod_const_data(next)) > 0)
         {
-            ret = 0;
+            ret = false;
             break;
         }
         pn = next;
@@ -713,11 +713,11 @@ void lis_sort(PLIS pl, LIS_DATA_COMPARE compare)
 #ifdef LIS_TEST
     #include <stdio.h>
 
-    int print_long(void *data)
+    bool print_long(void *data)
     {
         printf("%ld ", *(long *)data);
         fflush(stdout);
-        return 1;
+        return true;
     }
 
     int compare_long(const void *data1, const void *data2)

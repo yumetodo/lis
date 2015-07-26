@@ -20,7 +20,7 @@ typedef struct LIS
 } LIS, *PLIS;
 
 /* NOTE: LIS_FOREACH returns 0 to cancel operation. */
-typedef int (*LIS_FOREACH)(void *data);
+typedef bool (*LIS_FOREACH)(void *data);
 
 /* NOTE: LIS_DATA_COMPARE returns 0 if equal; -1 if less; 1 if greater. */
 typedef int (*LIS_DATA_COMPARE)(const void *data1, const void *data2);
@@ -67,10 +67,10 @@ void lis_reverse(PLIS pl);
 
 void lis_swap(PLIS pl1, PLIS pl2);
 
-int lis_valid(const LIS *pl);
-int lis_length_valid(const LIS *pl);
-int lis_contains(const LIS *pl, const NOD *pn);
-int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
+bool lis_valid(const LIS *pl);
+bool lis_length_valid(const LIS *pl);
+bool lis_contains(const LIS *pl, const NOD *pn);
+bool lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
 
 /****************************************************************************/
 /* function macros */

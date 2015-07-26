@@ -5,7 +5,12 @@
 #ifndef KATAHIROMZ_NOD_H
 #define KATAHIROMZ_NOD_H    1  /* Version 1 */
 
-#include <stddef.h>
+#ifdef __cplusplus
+    #include <cstddef>
+#else
+    #include <stddef.h>     /* for size_t */
+    #include <stdbool.h>    /* for bool, false, true */
+#endif
 
 /****************************************************************************/
 /* types */
