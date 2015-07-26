@@ -35,7 +35,7 @@ PNOD nod_new(const void *data, size_t data_size)
         }
     }
     return p;
-}
+} /* nod_new */
 
 void nod_delete_chain(PNOD p)
 {
@@ -47,7 +47,7 @@ void nod_delete_chain(PNOD p)
         nod_delete(x);
         x = next;
     }
-}
+} /* nod_delete_chain */
 
 PNOD nod_advance(PNOD p, size_t count)
 {
@@ -61,7 +61,7 @@ PNOD nod_advance(PNOD p, size_t count)
         x = x->next;
     }
     return x;
-}
+} /* nod_advance */
 
 size_t nod_distance(const NOD *p1, const NOD *p2)
 {
@@ -81,14 +81,14 @@ size_t nod_distance(const NOD *p1, const NOD *p2)
         count = (size_t)-1;
     }
     return count;
-}
+} /* nod_distance */
 
 PNOD nod_clone(const NOD *p)
 {
     PNOD created = nod_new(nod_const_data(p), nod_data_size(p));
     assert(created != NULL);
     return created;
-}
+} /* nod_clone */
 
 size_t nod_chain_length(const NOD *p)
 {
@@ -100,7 +100,7 @@ size_t nod_chain_length(const NOD *p)
         x = x->next;
     }
     return count;
-}
+} /* nod_chain_length */
 
 PNOD nod_push_head(PNOD first, const void *data, size_t data_size)
 {
@@ -112,7 +112,7 @@ PNOD nod_push_head(PNOD first, const void *data, size_t data_size)
         ret = p;
     }
     return ret;
-}
+} /* nod_push_head */
 
 PNOD nod_chain_fix_prevs(PNOD p)
 {
@@ -125,7 +125,7 @@ PNOD nod_chain_fix_prevs(PNOD p)
         x = x->next;
     }
     return prev;
-}
+} /* nod_chain_fix_prevs */
 
 PNOD nod_chain_last(PNOD p)
 {
@@ -137,6 +137,31 @@ PNOD nod_chain_last(PNOD p)
         x = x->next;
     }
     return prev;
-}
+} /* nod_chain_last */
+
+PNOD nod_prev_of(PNOD p, PNOD here)
+{
+    PNOD prev = NULL;
+    if (here != NULL)
+    {
+        if (here->prev != NULL)
+        {
+            prev = here->prev;
+        }
+        else
+        {
+            prev = p;
+            while (prev != NULL)
+            {
+                if (prev->next == here)
+                {
+                    break;
+                }
+                prev = prev->next;
+            }
+        }
+    }
+    return prev;
+} /* nod_prev_of */
 
 /****************************************************************************/

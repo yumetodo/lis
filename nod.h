@@ -47,6 +47,7 @@ PNOD nod_push_head(PNOD first, const void *data, size_t data_size);
 
 PNOD nod_chain_fix_prevs(PNOD p);
 PNOD nod_chain_last(PNOD p);
+PNOD nod_prev_of(PNOD p, PNOD here);
 
 /****************************************************************************/
 /* function macros */
