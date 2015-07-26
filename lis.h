@@ -51,6 +51,7 @@ void lis_pop_front(PLIS pl);
 void lis_insert(PLIS pl, PNOD here,
                 size_t count, const void *data, size_t data_size);
 void lis_resize(PLIS pl, size_t count, const void *data, size_t data_size);
+void lis_assign(PLIS pl, size_t count, const void *data, size_t data_size);
 
 void lis_erase(PLIS pl, PNOD pn);
 void lis_remove(PLIS pl, const void *data, LIS_DATA_COMPARE compare);
@@ -77,6 +78,9 @@ bool lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
 
 #define lis_empty(pl)     ((pl)->count == 0U)
 #define lis_size(pl)      ((pl)->count)
+
+#define lis_begin(pl)     ((pl)->first)
+#define lis_end(pl)       NULL
 
 #define lis_front(pl)     nod_data((pl)->first)
 #define lis_back(pl)      nod_data((pl)->last)

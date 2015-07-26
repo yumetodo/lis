@@ -1,0 +1,560 @@
+<html lang="en">
+<head>
+	<title>lis --- Conversion between C and C++</title>
+	<style>
+		body {
+			margin: 8px;
+			color: white;
+			background-color: black;
+		}
+		table {
+			margin-left: auto;
+			margin-right: auto;
+			border: 3px solid white;
+		}
+		td {
+			margin: 4px;
+			padding: 8px;
+			border: 1px solid white;
+		}
+		th {
+			color: yellow;
+			margin: 4px;
+			padding: 8px;
+			border: 1px solid white;
+		}
+		code {
+			color: #99FF99;
+		}
+	</style>
+</head>
+<body>
+	<h1 align="center">lis</h1>
+	<h2 align="center">Conversion between C and C++</h2>
+	
+	<hr />
+
+	<p>
+		You can convert <code>std::list</code>s of C++ to 
+		<code>lis</code>es in C; as the following table:
+	</p>
+
+	<table>
+		<tr>
+			<th>
+				C++
+			</th>
+			<th>
+				C with lis
+			</th>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis;
+				</code>
+			</td>
+			<td>
+				<code>
+					LIS lis;<br />
+					lis_init(&amp;lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis(100);
+				</code>
+			</td>
+			<td>
+				<code>
+					LIS lis;<br />
+					lis_init(&amp;lis);<br />
+					lis_resize(&amp;lis, 100, NULL, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					std::list&lt;DATA_T&gt; lis(count, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					LIS lis;<br />
+					lis_init(&amp;lis);
+					lis_resize(&amp;lis, count, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.clear();
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_clear(&amp;lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					/* destroy lis */
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_destroy(&amp;lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; *pl;<br />
+					pl = new std::list&lt;DATA_T&gt;();
+				</code>
+			</td>
+			<td>
+				<code>
+					PLIS plis = lis_new();
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; *plis;<br />
+					plis = new std::list&lt;DATA_T&gt;(100);
+				</code>
+			</td>
+			<td>
+				<code>
+					PLIS plis = lis_new();<br />
+					lis_resize(plis, 100, NULL, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					std::list&lt;DATA_T&gt; *plis;<br />
+					plis = new std::list&lt;DATA_T&gt;(100, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					PLIS plis = lis_new();<br />
+					lis_resize(plis, 100, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; *plis;<br />
+					plis = new std::list&lt;DATA_T&gt;(lis);
+				</code>
+			</td>
+			<td>
+				<code>
+					PLIS plis = lis_clone(&lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.push_front(data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_push_front(&amp;lis, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.push_back(data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_push_back(&amp;lis, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.pop_front();
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_pop_front(&amp;lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.pop_back();
+				</code>
+			</td>
+			<td>
+				(No matched. Use <code>lst</code> instead.)
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.insert(lis.begin(), data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_insert(&amp;lis, lis.first, 1, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.insert(lis.begin(), 100, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_insert(&amp;lis, lis.first, 100, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.insert(lis.end(), data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_insert(&amp;lis, NULL, 1, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.insert(lis.end(), 100, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_insert(&amp;lis, NULL, 100, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					delete plis;
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_delete(plis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis1 = lis0;
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_init(&amp;lis1);<br />
+					lis_copy(&amp;lis1, &amp;lis0);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis1(lis0);
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_init(&amp;lis1);<br />
+					lis_copy(&amp;lis1, &amp;lis0);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis1 = lis2;
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_copy(&amp;lis1, &amp;lis2);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.assign(100, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_assign(&amp;lis, 100, &amp;data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.resize(100);
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_resize(&amp;lis, 100, NULL, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.resize(100, data);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis_resize(&amp;lis, 100, &data, sizeof(DATA_T));
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.erase(begin());
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_erase(&amp;lis, lis.first);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis1.merge(lis2);
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_merge(&amp;lis1, &amp;lis2);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.unique([](const DATA_T&amp; a, const DATA_T&amp; b) {<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return a == b;<br />
+					});
+				</code>
+			</td>
+			<td>
+				<code>
+					int compare(const DATA_T *a, const DATA_T *b)<br />
+					{<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*a &lt; *b) return -1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*a &gt; *b) return 1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return 0;<br />
+					}<br />
+					<br />
+					lis_unique(&amp;lis, (LIS_DATA_COMPARE)compare);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					DATA_T data;<br />
+					lis.remove(data);
+				</code>
+			</td>
+			<td>
+				<code>
+					int compare(const DATA_T *a, const DATA_T *b)<br />
+					{<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*a &lt; *b) return -1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*a &gt; *b) return 1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return 0;<br />
+					}<br />
+					<br />
+					DATA_T data;<br />
+					lis_remove(&amp;lis, &amp;data, (LIS_DATA_COMPARE)compare);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.reverse();
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_reverse(&amp;lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::swap(lis1, lis2);
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_swap(&amp;lis1, &amp;lis2);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					for (auto&amp; it : lis)<br />
+					{<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;do_something(*it);<br />
+					}
+				</code>
+			</td>
+			<td>
+				<code>
+					bool my_foreach_fn(void *pitem)<br />
+					{<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;do_something(*(DATA_T *)pitem);<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return true;<br />
+					}<br />
+					<br />
+					lis_foreach(&amp;lis, (LIS_FOREACH_FN)my_foreach_fn);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis.sort([](const DATA_T&amp; y, const DATA_T&amp; y) {<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;...<br />
+					});
+				</code>
+			</td>
+			<td>
+				<code>
+					int compare(const DATA_T *pitem1, const DATA_T *pitem2)<br />
+					{<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;...<br />
+					}<br />
+					<br />
+					lis_sort(&amp;lis, (LIS_ITEM_COMPARE_FN)compare);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					auto it = lst.begin();
+				</code>
+			</td>
+			<td>
+				<code>
+					PNOD it = lst_begin(&lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					auto it = lst.end();
+				</code>
+			</td>
+			<td>
+				<code>
+					PNOD it = lst_end(&lis);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::advance(it, 5);
+				</code>
+			</td>
+			<td>
+				<code>
+					PNOD it = nod_advance(it, 5);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					auto diff = std::distance(it1, it2);
+				</code>
+			</td>
+			<td>
+				<code>
+					size_t diff = nod_distance(it1, it2);
+				</code>
+			</td>
+		</tr>
+	</table>
+
+	<p>
+		Enjoy programming!
+	</p>
+
+	<hr />
+	
+	<p>
+		Copyright (C) 2015 Katayama Hirofumi MZ. All Rights Reserved.
+	</p>
+
+</body></html>

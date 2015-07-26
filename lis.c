@@ -357,6 +357,18 @@ void lis_resize(PLIS pl, size_t count, const void *data, size_t data_size)
     assert(lis_valid(pl));
 } /* lis_resize */
 
+void lis_assign(PLIS pl, size_t count, const void *data, size_t data_size)
+{
+    LIS lis;
+
+    assert(lis_valid(pl));
+    lis_init(&lis);
+    lis_resize(&lis, count, data, data_size);
+    lis_swap(&lis, pl);
+    lis_destroy(&lis);
+    assert(lis_valid(pl));
+} /* lis_assign */
+
 void lis_insert(PLIS pl, PNOD here,
                 size_t count, const void *data, size_t data_size)
 {
