@@ -86,7 +86,7 @@
 				<code>
 					DATA_T data;<br />
 					LIS lis;<br />
-					lis_init(&amp;lis);
+					lis_init(&amp;lis);<br />
 					lis_resize(&amp;lis, count, &amp;data, sizeof(DATA_T));
 				</code>
 			</td>
@@ -481,16 +481,18 @@
 		<tr>
 			<td>
 				<code>
-					lis.sort([](const DATA_T&amp; y, const DATA_T&amp; y) {<br />
-					&nbsp;&nbsp;&nbsp;&nbsp;...<br />
+					lis.sort([](const DATA_T&amp; x, const DATA_T&amp; y) {<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return x < y;<br />
 					});
 				</code>
 			</td>
 			<td>
 				<code>
-					int compare(const DATA_T *pitem1, const DATA_T *pitem2)<br />
+					int compare(const DATA_T *data1, const DATA_T *data2)<br />
 					{<br />
-					&nbsp;&nbsp;&nbsp;&nbsp;...<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*data1 &lt; *data2) return -1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;if (*data1 &gt; *data2) return 1;<br />
+					&nbsp;&nbsp;&nbsp;&nbsp;return 0;<br />
 					}<br />
 					<br />
 					lis_sort(&amp;lis, (LIS_ITEM_COMPARE_FN)compare);
