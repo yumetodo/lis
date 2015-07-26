@@ -80,7 +80,7 @@ bool lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
 #define lis_size(pl)      ((pl)->count)
 
 #define lis_begin(pl)     ((pl)->first)
-#define lis_end(pl)       NULL
+#define lis_end(pl)       ((PNOD)NULL)
 
 #define lis_front(pl)     nod_data((pl)->first)
 #define lis_back(pl)      nod_data((pl)->last)
