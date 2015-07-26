@@ -36,54 +36,56 @@ extern "C"
 /****************************************************************************/
 /* functions */
 
-void lis_init(PLIS plis);
+void lis_init(PLIS pl);
 void lis_copy(PLIS dest, PLIS src);
-void lis_destroy(PLIS plis);
-void lis_clear(PLIS plis);
+void lis_destroy(PLIS pl);
+void lis_clear(PLIS pl);
 
 PLIS lis_new(void);
-void lis_delete(PLIS plis);
-PLIS lis_clone(PLIS plis);
+void lis_delete(PLIS pl);
+PLIS lis_clone(PLIS pl);
 
-void *lis_front(PLIS plis);
-void *lis_back(PLIS plis);
+void *lis_front(PLIS pl);
+void *lis_back(PLIS pl);
 
-void lis_push_front(PLIS plis, const void *data, size_t data_size);
-void lis_push_back(PLIS plis, const void *data, size_t data_size);
-void lis_pop_front(PLIS plis);
+void lis_push_front(PLIS pl, const void *data, size_t data_size);
+void lis_push_back(PLIS pl, const void *data, size_t data_size);
+void lis_pop_front(PLIS pl);
 
-void lis_insert(PLIS plis, PNOD here,
+void lis_insert(PLIS pl, PNOD here,
                 size_t count, const void *data, size_t data_size);
-void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size);
+void lis_resize(PLIS pl, size_t count, const void *data, size_t data_size);
 
-void lis_erase(PLIS plis, PNOD pnod);
-void lis_remove(PLIS plis, const void *data, LIS_DATA_COMPARE compare);
+void lis_erase(PLIS pl, PNOD pn);
+void lis_remove(PLIS pl, const void *data, LIS_DATA_COMPARE compare);
 
-void lis_foreach(PLIS plis, LIS_FOREACH fn);
+void lis_foreach(PLIS pl, LIS_FOREACH fn);
 
 PNOD lis_merge_nod(PNOD x, PNOD y, LIS_DATA_COMPARE compare);
-PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare);
+PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare);
 
-void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare);
-void lis_sort(PLIS plis, LIS_DATA_COMPARE compare);
+void lis_merge(PLIS pl1, PLIS pl2, LIS_DATA_COMPARE compare);
+void lis_sort(PLIS pl, LIS_DATA_COMPARE compare);
+void lis_unique(PLIS pl, LIS_DATA_COMPARE compare);
+void lis_reverse(PLIS pl);
 
-void lis_swap(PLIS plis1, PLIS plis2);
+void lis_swap(PLIS pl1, PLIS pl2);
 
-int lis_valid(PLIS plis);
-int lis_length_valid(PLIS plis);
-int lis_contains(PLIS plis, PNOD pnod);
-int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare);
+int lis_valid(const LIS *pl);
+int lis_length_valid(const LIS *pl);
+int lis_contains(const LIS *pl, const NOD *pn);
+int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
 
 /****************************************************************************/
 /* function macros */
 
-#define lis_empty(plis)     ((plis)->count == 0)
-#define lis_size(plis)      ((plis)->count)
+#define lis_empty(pl)     ((pl)->count == 0)
+#define lis_size(pl)      ((pl)->count)
 
-#define lis_front(plis)     nod_data((plis)->first)
-#define lis_back(plis)      nod_data((plis)->last)
+#define lis_front(pl)     nod_data((pl)->first)
+#define lis_back(pl)      nod_data((pl)->last)
 
-#define lis_destroy(plis)   nod_delete_chain((plis)->first)
+#define lis_destroy(pl)   nod_delete_chain((pl)->first)
 
 /****************************************************************************/
 /* C/C++ switching */

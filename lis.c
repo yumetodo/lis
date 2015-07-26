@@ -16,586 +16,692 @@
     #include <assert.h>
 #endif
 
-#include <stdio.h>
 #include "lis.h"
 
 /****************************************************************************/
 /* status checking */
 
 #ifndef lis_status_bad
-    #define lis_status_bad(plis)    /* empty */
+    #define lis_status_bad(pl)    /* empty */
 #endif
 
 /****************************************************************************/
 
-int lis_valid(PLIS plis)
+int lis_valid(const LIS *pl)
 {
-    if (plis == NULL)
-        return 0;
+    int ret = 1;
 
-    if (!lis_length_valid(plis))
-        return 0;
-
-    if (plis->count == 0)
+    if ((pl == NULL))
     {
-        if (plis->first || plis->last)
-            return 0;
+        ret = 0;
+    }
+    else if (lis_length_valid(pl) == 0)
+    {
+        ret = 0;
     }
     else
     {
-        if (plis->first == NULL || plis->last == NULL)
-            return 0;
+        if (pl->count == 0U)
+        {
+            if ((pl->first != NULL) || (pl->last != NULL))
+            {
+                ret = 0;
+            }
+        }
+        else
+        {
+            if ((pl->first == NULL) || (pl->last == NULL))
+            {
+                ret = 0;
+            }
+        }
     }
 
-    return 1;
+    return ret;
 } /* lis_valid */
 
-int lis_length_valid(PLIS plis)
+int lis_length_valid(const LIS *pl)
 {
     size_t i, count;
-    PNOD pnod;
+    PNOD pn;
 
-    count = plis->count + 1;
-    pnod = plis->first;
-    for (i = 0; i < count; ++i) {
-        if (pnod == NULL)
+    count = pl->count + 1U;
+    pn = pl->first;
+    for (i = 0U; i < count; ++i)
+    {
+        if (pn == NULL)
+        {
             break;
-        pnod = pnod->next;
+        }
+        pn = pn->next;
     }
-    if (pnod != NULL && i != plis->count)
-        return 0;
 
-    return 1;
+    return ((pn == NULL) || (i == pl->count));
 } /* lis_length_valid */
 
-int lis_contains(PLIS plis, PNOD pnod)
+int lis_contains(const LIS *pl, const NOD *pn)
 {
-    PNOD p;
-    assert(lis_valid(plis));
-    p = plis->first;
-    while (p)
+    const NOD *p;
+    int ret = 0;
+
+    assert(lis_valid(pl));
+    p = pl->first;
+    while (p != NULL)
     {
-        if (p == pnod)
-            return 1;
+        if (p == pn)
+        {
+            ret = 1;
+            break;
+        }
         p = p->next;
     }
-    return 0;
+
+    return ret;
 } /* lis_contains */
 
-int lis_is_sorted(PLIS plis, LIS_DATA_COMPARE compare)
+int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
 {
-    PNOD pnod, next;
+    PNOD pn, next;
+    int ret = 1;
 
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
+    assert(compare != NULL);
 
-    pnod = plis->first;
-    while (pnod)
+    pn = pl->first;
+    while (pn != NULL)
     {
-        next = pnod->next;
+        next = pn->next;
         if (next == NULL)
+        {
             break;
-        if ((*compare)(nod_data(pnod), nod_data(next)) > 0)
-            return 0;
-        pnod = next;
+        }
+
+        if ((*compare)(nod_data(pn), nod_data(next)) > 0)
+        {
+            ret = 0;
+            break;
+        }
+        pn = next;
     }
 
-    assert(lis_valid(plis));
-    return 1;
+    assert(lis_valid(pl));
+    return ret;
 } /* lis_is_sorted */
 
 /****************************************************************************/
 
-void lis_init(PLIS plis)
+void lis_init(PLIS pl)
 {
-    assert(plis);
-    plis->first = NULL;
-    plis->last = NULL;
-    plis->count = 0;
-    assert(lis_valid(plis));
+    assert(pl != NULL);
+    pl->first = NULL;
+    pl->last = NULL;
+    pl->count = 0U;
+    assert(lis_valid(pl));
 } /* lis_init */
 
 void lis_copy(PLIS dest, PLIS src)
 {
-    PNOD pnod, created;
+    PNOD pn, created;
 
     assert(lis_valid(dest));
     assert(lis_valid(src));
 
     lis_clear(dest);
-    pnod = src->first;
-    if (pnod == NULL)
-        return;
 
-    created = nod_clone(pnod);
-    dest->first = created;
-    dest->last = created;
-    dest->count = 1;
-
-    for (;;)
+    pn = src->first;
+    if (pn != NULL)
     {
-        pnod = pnod->next;
-        if (pnod == NULL)
-            break;
-
-        created = nod_clone(pnod);
-        if (created == NULL)
-        {
-            lis_status_bad(dest);
-            return;
-        }
-        dest->last->next = created;
+        created = nod_clone(pn);
+        dest->first = created;
         dest->last = created;
-        dest->count += 1;
+        dest->count = 1U;
+
+        for (;;)
+        {
+            pn = pn->next;
+            if (pn == NULL)
+            {
+                break;
+            }
+
+            created = nod_clone(pn);
+            if (created == NULL)
+            {
+                /* status bad */
+                lis_status_bad(dest);
+                break;
+            }
+            dest->last->next = created;
+            dest->last = created;
+            dest->count += 1U;
+        }
     }
 
     assert(lis_valid(dest));
     assert(lis_valid(src));
 } /* lis_copy */
 
-PLIS lis_clone(PLIS plis)
+PLIS lis_clone(PLIS pl)
 {
     PLIS created;
 
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
+
     created = lis_new();
-    if (created)
+    if (created != NULL)
     {
-        lis_copy(created, plis);
+        lis_copy(created, pl);
     }
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 
     return created;
 } /* lis_clone */
 
-void lis_clear(PLIS plis)
+void lis_clear(PLIS pl)
 {
-    assert(lis_valid(plis));
-    lis_destroy(plis);
-    lis_init(plis);
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
+    lis_destroy(pl);
+    lis_init(pl);
+    assert(lis_valid(pl));
 } /* lis_clear */
 
 PLIS lis_new(void)
 {
-    PLIS plis = (PLIS)calloc(sizeof(LIS), 1);
-    if (plis)
+    PLIS pl = (PLIS)calloc(sizeof(LIS), 1);
+    if (pl != NULL)
     {
-        lis_init(plis);
-        assert(lis_valid(plis));
+        lis_init(pl);
+        assert(lis_valid(pl));
     }
     else
     {
+        /* status bad */
         lis_status_bad(NULL);
     }
-    return plis;
+    return pl;
 } /* lis_new */
 
-void lis_delete(PLIS plis)
+void lis_delete(PLIS pl)
 {
-    if (plis)
+    if (pl != NULL)
     {
-        lis_destroy(plis);
-        free(plis);
+        lis_destroy(pl);
+        free(pl);
     }
 } /* lis_delete */
 
-void lis_push_front(PLIS plis, const void *data, size_t data_size)
+void lis_push_front(PLIS pl, const void *data, size_t data_size)
 {
-    PNOD pnod = nod_new(data, data_size);
-    if (pnod == NULL)
+    PNOD pn = nod_new(data, data_size);
+    if (pn != NULL)
     {
-        lis_status_bad(plis);
-        return;
-    }
-
-    if (plis->count == 0)
-    {
-        plis->first = pnod;
-        plis->last = pnod;
+        if (pl->count == 0U)
+        {
+            pl->first = pn;
+            pl->last = pn;
+        }
+        else
+        {
+            pn->next = pl->first;
+            pl->first = pn;
+        }
+        pl->count += 1U;
     }
     else
     {
-        pnod->next = plis->first;
-        plis->first = pnod;
+        /* status bad */
+        lis_status_bad(pl);
     }
-    plis->count += 1;
-    assert(lis_valid(plis));
+
+    assert(lis_valid(pl));
 } /* lis_push_front */
 
-void lis_push_back(PLIS plis, const void *data, size_t data_size)
+void lis_push_back(PLIS pl, const void *data, size_t data_size)
 {
-    PNOD pnod;
+    PNOD pn;
 
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 
-    pnod = nod_new(data, data_size);
-    if (pnod == NULL)
+    pn = nod_new(data, data_size);
+    if (pn != NULL)
     {
-        lis_status_bad(plis);
-        return;
-    }
-
-    if (plis->count == 0)
-    {
-        plis->first = pnod;
-        plis->last = pnod;
+        if (pl->count == 0U)
+        {
+            pl->first = pn;
+            pl->last = pn;
+        }
+        else
+        {
+            pl->last->next = pn;
+            pl->last = pn;
+        }
+        pl->count += 1U;
     }
     else
     {
-        plis->last->next = pnod;
-        plis->last = pnod;
+        /* status bad */
+        lis_status_bad(pl);
     }
-    plis->count += 1;
 
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 } /* lis_push_back */
 
-void lis_pop_front(PLIS plis)
+void lis_pop_front(PLIS pl)
 {
-    PNOD pnod;
+    PNOD pn;
 
-    assert(lis_valid(plis));
-    if (plis->count <= 0)
-        return;
+    assert(lis_valid(pl));
+    if (pl->count > 0U)
+    {
+        pl->count -= 1U;
+        pn = pl->first;
+        assert(pn != NULL);
+        pl->first = pn->next;
+        nod_delete(pn);
+    }
 
-    plis->count -= 1;
-    pnod = plis->first;
-    assert(pnod);
-    plis->first = pnod->next;
-    nod_delete(pnod);
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 } /* lis_pop_front */
 
-void lis_resize(PLIS plis, size_t count, const void *data, size_t data_size)
+void lis_resize(PLIS pl, size_t count, const void *data, size_t data_size)
 {
     size_t diff;
-    PNOD pnod, prev;
+    PNOD pn, prev;
 
-    assert(lis_valid(plis));
-    if (plis->count < count)
+    assert(lis_valid(pl));
+    if (pl->count < count)
     {
-        diff = count - plis->count;
+        diff = count - pl->count;
         while (diff > 0)
         {
-            lis_push_back(plis, data, data_size);
+            lis_push_back(pl, data, data_size);
             --diff;
         }
     }
-    else if (plis->count > count)
+    else if (pl->count > count)
     {
         prev = NULL;
-        pnod = plis->first;
-        while (pnod && count > 0)
+        pn = pl->first;
+        while (pn && (count > 0U))
         {
-            prev = pnod;
-            pnod = pnod->next;
+            prev = pn;
+            pn = pn->next;
             --count;
         }
-        if (count > 0 || pnod == NULL)
-            return;
 
-        plis->last = prev;
-        nod_delete_chain(pnod);
-        if (plis->last)
-            plis->last->next = NULL;
+        if ((count > 0U) || (pn == NULL))
+        {
+            /* status bad */
+            lis_status_bad(pl);
+        }
         else
-            plis->first = NULL;
-        plis->count = count;
+        {
+            pl->last = prev;
+            nod_delete_chain(pn);
+            if (pl->last != NULL)
+            {
+                pl->last->next = NULL;
+            }
+            else
+            {
+                pl->first = NULL;
+            }
+            pl->count = count;
+        }
     }
-    assert(lis_valid(plis));
+    else
+    {
+        /* do nothing */
+    }
+    assert(lis_valid(pl));
 } /* lis_resize */
 
-void lis_insert(PLIS plis, PNOD here,
+void lis_insert(PLIS pl, PNOD here,
                 size_t count, const void *data, size_t data_size)
 {
     PNOD added, prev;
 
-    assert(lis_valid(plis));
-    assert(lis_contains(plis, here) || here == NULL);
+    assert(lis_valid(pl));
+    assert(lis_contains(pl, here) != 0 || here == NULL);
 
     if (here == NULL)
     {
-        lis_resize(plis, plis->count + count, data, data_size);
-        return;
+        lis_resize(pl, pl->count + count, data, data_size);
     }
-
-    prev = plis->first;
-    while (prev)
+    else
     {
-        if (prev->next == here)
-            break;
-        prev = prev->next;
-    }
-
-    while (count-- > 0)
-    {
-        added = nod_new(data, data_size);
-        if (added == NULL)
+        prev = pl->first;
+        while (prev != NULL)
         {
-            lis_status_bad(plis);
-            return;
+            if (prev->next == here)
+            {
+                break;
+            }
+            prev = prev->next;
         }
-        /*
-         * prev -- here -- here->next
-         *         ^added
-         *
-         * prev -- added -- here -- here->next
-         */
-        if (prev)
-            prev->next = added;
-        else
-            plis->first = added;
-        added->next = here;
-        here = added;
-        plis->count += 1;
+
+        while (count-- > 0)
+        {
+            added = nod_new(data, data_size);
+            if (added == NULL)
+            {
+                /* status bad */
+                lis_status_bad(pl);
+                break;
+            }
+
+            /*
+             * prev -- here -- here->next
+             *         ^added
+             *
+             * prev -- added -- here -- here->next
+             */
+            if (prev != NULL)
+            {
+                prev->next = added;
+            }
+            else
+            {
+                pl->first = added;
+            }
+            added->next = here;
+            here = added;
+            pl->count += 1U;
+        }
     }
+    assert(lis_valid(pl));
 }
 
-void lis_erase(PLIS plis, PNOD pnod)
+void lis_erase(PLIS pl, PNOD pn)
 {
     PNOD p, prev;
 
-    assert(lis_valid(plis));
-    assert(lis_contains(plis, pnod));
+    assert(lis_valid(pl));
+    assert(lis_contains(pl, pn));
 
     prev = NULL;
-    p = plis->first;
-    while (p)
+    p = pl->first;
+    while (p != NULL)
     {
-        if (p == pnod)
+        if (p == pn)
+        {
             break;
+        }
         prev = p;
         p = p->next;
     }
 
     /*
-     * prev -- pnod -- pnod->next
+     * prev -- pn -- pn->next
      *         ^
-     * prev     --     pnod->next
+     * prev     --     pn->next
      */
-    if (prev)
-        prev->next = pnod->next;
-    plis->count -= 1;
-
-    if (plis->count == 0)
+    if (prev != NULL)
     {
-        plis->first = NULL;
-        plis->last = NULL;
+        prev->next = pn->next;
+    }
+
+    pl->count -= 1U;
+    if (pl->count == 0U)
+    {
+        pl->first = NULL;
+        pl->last = NULL;
     }
     else
     {
         if (prev == NULL)
         {
-            plis->first = pnod->next;
+            pl->first = pn->next;
         }
-        else if (pnod->next == NULL)
+        else if (pn->next == NULL)
         {
-            plis->last = prev;
+            pl->last = prev;
+        }
+        else
+        {
+            /* do nothing */
         }
     }
-    nod_delete(pnod);
-    assert(lis_valid(plis));
+    nod_delete(pn);
+
+    assert(lis_valid(pl));
 } /* lis_erase */
 
-void lis_unique(PLIS plis, LIS_DATA_COMPARE compare)
+void lis_unique(PLIS pl, LIS_DATA_COMPARE compare)
 {
-    PNOD pnod, next;
+    PNOD pn, next;
 
-    assert(lis_valid(plis));
-    if (plis->count == 0)
-        return;
+    assert(lis_valid(pl));
+    assert(compare != NULL);
 
-    for (pnod = plis->first; pnod; pnod = pnod->next)
+    if (pl->count > 0U)
     {
-        /* a1 a2 a3 b1 b2 c1 c2 c3 d1 */
-        /* ^  ^ */
-        /* a1    a3 b1 b2 c1 c2 c3 d1 */
-        /* ^     ^ */
-        /* a1       b1 b2 c1 c2 c3 d1 */
-        /* ^        ^ */
-        next = pnod->next;
-        if (next == NULL)
-            break;
-
-        if ((*compare)(nod_data(pnod), nod_data(next)) == 0)
+        for (pn = pl->first; pn != NULL; pn = pn->next)
         {
-            do
-            {
-                lis_erase(plis, next);
-
-                next = pnod->next;
-                if (next == NULL)
-                    break;
-            } while ((*compare)(nod_data(pnod), nod_data(next)) == 0);
+            /* a1 a2 a3 b1 b2 c1 c2 c3 d1 */
+            /* ^  ^ */
+            /* a1    a3 b1 b2 c1 c2 c3 d1 */
+            /* ^     ^ */
+            /* a1       b1 b2 c1 c2 c3 d1 */
+            /* ^        ^ */
+            next = pn->next;
             if (next == NULL)
+            {
                 break;
+            }
+
+            if ((*compare)(nod_data(pn), nod_data(next)) == 0)
+            {
+                do
+                {
+                    lis_erase(pl, next);
+
+                    next = pn->next;
+                    if (next == NULL)
+                    {
+                        break;
+                    }
+                } while ((*compare)(nod_data(pn), nod_data(next)) == 0);
+
+                if (next == NULL)
+                {
+                    break;
+                }
+            }
         }
     }
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 } /* lis_unique */
 
-void lis_reverse(PLIS plis)
+void lis_reverse(PLIS pl)
 {
-    PNOD pnod, next;
+    PNOD pn, next;
     PNOD chain, new_last;
 
-    assert(lis_valid(plis));
-    if (plis->count <= 1)
-        return;
-
-    pnod = new_last = plis->first;
-    chain = NULL;
-    do
+    assert(lis_valid(pl));
+    if (pl->count > 1U)
     {
-        next = pnod->next;
+        pn = pl->first;
+        new_last = pn;
+        chain = NULL;
+        do
+        {
+            next = pn->next;
 
-        pnod->next = chain;
-        chain = pnod;
+            pn->next = chain;
+            chain = pn;
 
-        pnod = next;
-    } while (pnod);
+            pn = next;
+        } while (pn != NULL);
 
-    plis->first = chain;
-    plis->last = new_last;
-    assert(lis_valid(plis));
+        pl->first = chain;
+        pl->last = new_last;
+    }
+
+    assert(lis_valid(pl));
 } /* lis_reverse */
 
-void lis_remove(PLIS plis, const void *data, LIS_DATA_COMPARE compare)
+void lis_remove(PLIS pl, const void *data, LIS_DATA_COMPARE compare)
 {
-    PNOD pnod, next;
+    PNOD pn, next;
 
-    assert(lis_valid(plis));
-    pnod = plis->first;
-    while (pnod)
+    assert(lis_valid(pl));
+    assert(compare != NULL);
+
+    pn = pl->first;
+    while (pn != NULL)
     {
-        next = pnod->next;
-        if (compare(data, nod_data(pnod)) == 0)
-            lis_erase(plis, pnod);
-        pnod = next;
+        next = pn->next;
+        if ((*compare)(data, nod_data(pn)) == 0)
+        {
+            lis_erase(pl, pn);
+        }
+        pn = next;
     }
-    assert(lis_valid(plis));
+    assert(lis_valid(pl));
 } /* lis_remove */
 
-void lis_swap(PLIS plis1, PLIS plis2)
+void lis_swap(PLIS pl1, PLIS pl2)
 {
     LIS lis;
 
-    assert(lis_valid(plis1));
-    assert(lis_valid(plis2));
-    if (plis1 == plis2)
-        return;
+    assert(lis_valid(pl1));
+    assert(lis_valid(pl2));
 
-    lis = *plis1;
-    *plis1 = *plis2;
-    *plis2 = lis;
+    if (pl1 != pl2)
+    {
+        lis = *pl1;
+        *pl1 = *pl2;
+        *pl2 = lis;
+    }
 
-    assert(lis_valid(plis1));
-    assert(lis_valid(plis2));
+    assert(lis_valid(pl1));
+    assert(lis_valid(pl2));
 } /* lis_swap */
 
-void lis_foreach(PLIS plis, LIS_FOREACH fn)
+void lis_foreach(PLIS pl, LIS_FOREACH fn)
 {
-    PNOD pnod = plis->first;
+    PNOD pn = pl->first;
 
-    while (pnod)
+    assert(lis_valid(pl));
+    while (pn)
     {
-        if ((*fn)(nod_data(pnod)) == 0)
+        if ((*fn)(nod_data(pn)) == 0)
+        {
             break;
-        pnod = pnod->next;
+        }
+        pn = pn->next;
     }
+    assert(lis_valid(pl));
 } /* lis_foreach */
 
 PNOD lis_merge_nod(PNOD x, PNOD y, LIS_DATA_COMPARE compare)
 {
     NOD head;
-    PNOD pnod = &head;
+    PNOD pn = &head;
+    PNOD a = x;
+    PNOD b = y;
 
-    while (x && y)
+    assert(compare != NULL);
+
+    while ((a != NULL) && (b != NULL))
     {
-        if (compare(nod_data(x), nod_data(y)) < 0)
+        if ((*compare)(nod_data(a), nod_data(b)) < 0)
         {
-            pnod->next = x;
-            x = x->next;
-            pnod = pnod->next;
+            pn->next = a;
+            a = a->next;
+            pn = pn->next;
         }
         else
         {
-            pnod->next = y;
-            y = y->next;
-            pnod = pnod->next;
+            pn->next = b;
+            b = b->next;
+            pn = pn->next;
         }
     }
 
-    if (x)
-        pnod->next = x;
+    if (a != NULL)
+    {
+        pn->next = a;
+    }
     else
-        pnod->next = y;
+    {
+        pn->next = b;
+    }
 
     return head.next;
 } /* lis_merge_nod */
 
-void lis_merge(PLIS plis1, PLIS plis2, LIS_DATA_COMPARE compare)
+void lis_merge(PLIS pl1, PLIS pl2, LIS_DATA_COMPARE compare)
 {
-    PNOD pnod;
-    assert(lis_is_sorted(plis1, compare));
-    assert(lis_is_sorted(plis2, compare));
+    PNOD pn;
+    assert(lis_is_sorted(pl1, compare));
+    assert(lis_is_sorted(pl2, compare));
+    assert(compare != NULL);
 
-    pnod = lis_merge_nod(plis1->first, plis2->first, compare);
+    pn = lis_merge_nod(pl1->first, pl2->first, compare);
 
-    plis1->first = pnod;
-    plis1->last = nod_chain_last(pnod);
-    plis1->count += plis2->count;
+    pl1->first = pn;
+    pl1->last = nod_chain_last(pn);
+    pl1->count += pl2->count;
 
-    plis2->first = NULL;
-    plis2->last = NULL;
-    plis2->count = 0;
+    pl2->first = NULL;
+    pl2->last = NULL;
+    pl2->count = 0U;
 
-    assert(lis_is_sorted(plis1, compare));
-    assert(lis_size(plis2) == 0);
+    assert(lis_is_sorted(pl1, compare));
+    assert(lis_size(pl2) == 0);
 } /* lis_merge */
 
-PNOD lis_sort_nod(PNOD pnod, LIS_DATA_COMPARE compare)
+PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare)
 {
-    PNOD x, y;
+    PNOD x, y, ret = pn;
 
-    if (pnod == NULL || pnod->next == NULL)
-        return pnod;
+    assert(compare != NULL);
 
-    x = pnod;
-    y = x->next->next;
-
-    while (y)
+    if ((pn != NULL) && (pn->next != NULL))
     {
-        x = x->next;
-        y = y->next;
-        if (y)
+        x = pn;
+        y = x->next->next;
+
+        while (y != NULL)
+        {
+            x = x->next;
             y = y->next;
+            if (y != NULL)
+            {
+                y = y->next;
+            }
+        }
+
+        y = x->next;
+        x->next = NULL;
+
+        x = lis_sort_nod(pn, compare);
+        y = lis_sort_nod(y, compare);
+        ret = lis_merge_nod(x, y, compare);
     }
-
-    y = x->next;
-    x->next = NULL;
-
-    x = lis_sort_nod(pnod, compare);
-    y = lis_sort_nod(y, compare);
-    return lis_merge_nod(x, y, compare);
+    return ret;
 } /* lis_sort_nod */
 
-void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
+void lis_sort(PLIS pl, LIS_DATA_COMPARE compare)
 {
-    PNOD pnod;
+    PNOD pn;
 
-    assert(lis_valid(plis));
-    if (plis->count <= 1)
-        return;
+    assert(lis_valid(pl));
+    assert(compare != NULL);
 
-    pnod = plis->first;
-    pnod = lis_sort_nod(pnod, compare);
+    if (pl->count > 1U)
+    {
+        pn = pl->first;
+        pn = lis_sort_nod(pn, compare);
 
-    plis->first = pnod;
-    plis->last = nod_chain_last(pnod);
+        pl->first = pn;
+        pl->last = nod_chain_last(pn);
+    }
 
-    assert(lis_valid(plis));
-    assert(lis_is_sorted(plis, compare));
+    assert(lis_valid(pl));
+    assert(lis_is_sorted(pl, compare));
 } /* lis_sort */
 
 /****************************************************************************/
@@ -628,7 +734,7 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
     {
         LIS lis1, lis2;
         long n;
-        PNOD pnod;
+        PNOD pn;
         size_t siz = sizeof(long);
 
         lis_init(&lis1);
@@ -645,18 +751,18 @@ void lis_sort(PLIS plis, LIS_DATA_COMPARE compare)
         lis_foreach(&lis1, print_long);
         puts("");
 
-        pnod = lis1.first;
+        pn = lis1.first;
 
         n = 0;
-        assert(memcmp(nod_data(pnod), &n, siz) == 0);
-        pnod = pnod->next;
+        assert(memcmp(nod_data(pn), &n, siz) == 0);
+        pn = pn->next;
         n = 1;
-        assert(memcmp(nod_data(pnod), &n, siz) == 0);
-        pnod = pnod->next;
+        assert(memcmp(nod_data(pn), &n, siz) == 0);
+        pn = pn->next;
         n = 2;
-        assert(memcmp(nod_data(pnod), &n, siz) == 0);
-        pnod = pnod->next;
-        assert(pnod == NULL);
+        assert(memcmp(nod_data(pn), &n, siz) == 0);
+        pn = pn->next;
+        assert(pn == NULL);
 
         assert(lis_is_sorted(&lis1, compare_long));
 

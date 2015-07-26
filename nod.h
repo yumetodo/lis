@@ -5,6 +5,8 @@
 #ifndef KATAHIROMZ_NOD_H
 #define KATAHIROMZ_NOD_H    1  /* Version 1 */
 
+#include <stddef.h>
+
 /****************************************************************************/
 /* types */
 
@@ -28,26 +30,26 @@ extern "C"
 /* functions */
 
 PNOD nod_new(const void *data, size_t data_size);
-PNOD nod_clone(PNOD pnod);
+PNOD nod_clone(const NOD *p);
 
-PNOD nod_advance(PNOD pnod, size_t count);
-size_t nod_distance(PNOD pnod1, PNOD pnod2);
-size_t nod_chain_length(PNOD pnod);
+PNOD nod_advance(PNOD p, size_t count);
+size_t nod_distance(const NOD *p1, const NOD *p2);
+size_t nod_chain_length(const NOD *p);
 
-void nod_delete(PNOD pnod);
-void nod_delete_chain(PNOD pnod);
+void nod_delete_chain(PNOD p);
 
 PNOD nod_push_head(PNOD first, const void *data, size_t data_size);
 
-PNOD nod_chain_fix_prevs(PNOD pnod);
-PNOD nod_chain_last(PNOD pnod);
+PNOD nod_chain_fix_prevs(PNOD p);
+PNOD nod_chain_last(PNOD p);
 
 /****************************************************************************/
 /* function macros */
 
-#define nod_data(pnod)          ((void *)((PNOD)(pnod) + 1))
-#define nod_data_size(pnod)     ((pnod)->data_size)
-#define nod_delete(pnod)        free(pnod)
+#define nod_data(p)          ((void *)&(((PNOD)p)[1]))
+#define nod_const_data(p)    ((const void *)&(((const NOD*)p)[1]))
+#define nod_data_size(p)     ((p)->data_size)
+#define nod_delete(p)        free(p)
 
 /****************************************************************************/
 /* C/C++ switching */

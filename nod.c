@@ -22,101 +22,118 @@
 
 PNOD nod_new(const void *data, size_t data_size)
 {
-    PNOD pnod = (PNOD)calloc(sizeof(NOD) + data_size, 1);
-    if (pnod)
+    PNOD p = (PNOD)calloc(sizeof(NOD) + data_size, 1);
+    if (p != NULL)
     {
-        pnod->next = NULL;
-        pnod->prev = NULL;
-        pnod->data_size = data_size;
-        if (data)
-            memcpy(nod_data(pnod), data, data_size);
+        p->next = NULL;
+        p->prev = NULL;
+        p->data_size = data_size;
+        if (data != NULL)
+        {
+            memcpy(nod_data(p), data, data_size);
+        }
     }
-    return pnod;
+    return p;
 }
 
-void nod_delete_chain(PNOD pnod)
+void nod_delete_chain(PNOD p)
 {
     PNOD next;
-    while (pnod)
+    PNOD x = p;
+    while (x != NULL)
     {
-        next = pnod->next;
-        nod_delete(pnod);
-        pnod = next;
+        next = x->next;
+        nod_delete(x);
+        x = next;
     }
 }
 
-PNOD nod_advance(PNOD pnod, size_t count)
+PNOD nod_advance(PNOD p, size_t count)
 {
-    while (count--)
+    PNOD x = p;
+    while (count-- > 0U)
     {
-        if (pnod == NULL)
+        if (x == NULL)
+        {
             break;
-        pnod = pnod->next;
+        }
+        x = x->next;
     }
-    return pnod;
+    return x;
 }
 
-size_t nod_distance(PNOD pnod1, PNOD pnod2)
+size_t nod_distance(const NOD *p1, const NOD *p2)
 {
-    size_t count = 0;
-    while (pnod1)
+    const NOD *x = p1;
+    size_t count = 0U;
+    while (x != NULL)
     {
-        if (pnod1 == pnod2)
-            return count;
-        pnod1 = pnod1->next;
+        if (x == p2)
+        {
+            break;
+        }
+        x = x->next;
         ++count;
     }
-    return (size_t)-1;
+    if (x == NULL)
+    {
+        count = (size_t)-1;
+    }
+    return count;
 }
 
-PNOD nod_clone(PNOD pnod)
+PNOD nod_clone(const NOD *p)
 {
-    PNOD created = nod_new(nod_data(pnod), nod_data_size(pnod));
-    assert(created);
+    PNOD created = nod_new(nod_const_data(p), nod_data_size(p));
+    assert(created != NULL);
     return created;
 }
 
-size_t nod_chain_length(PNOD pnod)
+size_t nod_chain_length(const NOD *p)
 {
-    size_t count = 0;
-    while (pnod)
+    const NOD *x = p;
+    size_t count = 0U;
+    while (x != NULL)
     {
         ++count;
-        pnod = pnod->next;
+        x = x->next;
     }
     return count;
 }
 
 PNOD nod_push_head(PNOD first, const void *data, size_t data_size)
 {
-    PNOD pnod = nod_new(data, data_size);
-    if (pnod)
+    PNOD ret = first;
+    PNOD p = nod_new(data, data_size);
+    if (p != NULL)
     {
-        pnod->next = first;
-        return pnod;
+        p->next = first;
+        ret = p;
     }
-    return first;
+    return ret;
 }
 
-PNOD nod_chain_fix_prevs(PNOD pnod)
+PNOD nod_chain_fix_prevs(PNOD p)
 {
+    PNOD x = p;
     PNOD prev = NULL;
-    while (pnod)
+    while (x != NULL)
     {
-        pnod->prev = prev;
-        prev = pnod;
-        pnod = pnod->next;
+        x->prev = prev;
+        prev = x;
+        x = x->next;
     }
     return prev;
 }
 
-PNOD nod_chain_last(PNOD pnod)
+PNOD nod_chain_last(PNOD p)
 {
+    PNOD x = p;
     PNOD prev = NULL;
-    while (pnod)
+    while (x != NULL)
     {
-        prev = pnod;
-        pnod = pnod->next;
+        prev = x;
+        x = x->next;
     }
     return prev;
 }
