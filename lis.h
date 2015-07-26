@@ -75,7 +75,7 @@ int lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare);
 /****************************************************************************/
 /* function macros */
 
-#define lis_empty(pl)     ((pl)->count == 0)
+#define lis_empty(pl)     ((pl)->count == 0U)
 #define lis_size(pl)      ((pl)->count)
 
 #define lis_front(pl)     nod_data((pl)->first)
