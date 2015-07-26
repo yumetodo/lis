@@ -4,6 +4,7 @@
 /* [History]                                                                */
 /* 2015.07.22: katahiromz creates v0.                                       */
 /* 2015.07.25: katahiromz creates v1.                                       */
+/* 2015.07.26: katahiromz creates v2.                                       */
 /****************************************************************************/
 
 #ifdef __cplusplus
