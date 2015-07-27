@@ -26,6 +26,15 @@ typedef bool (*LIS_FOREACH)(void *data);
 typedef int (*LIS_DATA_COMPARE)(const void *data1, const void *data2);
 
 /****************************************************************************/
+/* Do you wanna status return? */
+
+#ifdef LIS_WANT_STATUS_RETURN
+    typedef bool lis_bool;
+#else
+    typedef void lis_bool;
+#endif
+
+/****************************************************************************/
 /* C/C++ switching */
 
 #ifdef __cplusplus
@@ -37,23 +46,30 @@ extern "C"
 /* functions */
 
 void lis_init(PLIS pl);
-void lis_copy(PLIS dest, const LIS *src);
+lis_bool lis_construct(PLIS pl, size_t data_size,
+                       size_t num_items, const void *items);
+lis_bool lis_copy(PLIS dest, const LIS *src);
 void lis_clear(PLIS pl);
 
 PLIS lis_new(void);
 void lis_delete(PLIS pl);
 PLIS lis_clone(PLIS pl);
 
-void lis_push_front(PLIS pl, const void *data, size_t data_size);
-void lis_push_back(PLIS pl, const void *data, size_t data_size);
-void lis_pop_front(PLIS pl);
+lis_bool lis_push_front(PLIS pl, const void *data, size_t data_size);
+lis_bool lis_push_back(PLIS pl, const void *data, size_t data_size);
+lis_bool lis_pop_front(PLIS pl);
 
-void lis_insert(PLIS pl, PNOD here,
-                size_t count, const void *data, size_t data_size);
-void lis_resize(PLIS pl, size_t count, const void *data, size_t data_size);
-void lis_assign(PLIS pl, size_t count, const void *data, size_t data_size);
+void lis_insert_nod(PLIS pl, PNOD here, PNOD pn);
+lis_bool lis_insert(PLIS pl, PNOD here,
+                    size_t count, const void *data, size_t data_size);
 
-void lis_erase(PLIS pl, PNOD pn);
+lis_bool
+lis_resize(PLIS pl, size_t count, const void *data, size_t data_size);
+
+lis_bool
+lis_assign(PLIS pl, size_t count, const void *data, size_t data_size);
+
+lis_bool lis_erase(PLIS pl, PNOD pn);
 void lis_remove(PLIS pl, const void *data, LIS_DATA_COMPARE compare);
 
 void lis_foreach(PLIS pl, LIS_FOREACH fn);

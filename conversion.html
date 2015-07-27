@@ -96,6 +96,59 @@
 		<tr>
 			<td>
 				<code>
+					DATA_T array[100];<br />
+					std::list&lt;DATA_T&gt; lis(&array[0], &array[100]);
+				</code>
+			</td>
+			<td>
+				<code>
+					DATA_T array[100];<br />
+					LIS lis;<br />
+					lis_construct(&amp;lis, sizeof(DATA_T), 100, array);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis1 = lis0;
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_init(&amp;lis1);<br />
+					lis_copy(&amp;lis1, &amp;lis0);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					std::list&lt;DATA_T&gt; lis1(lis0);
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_init(&amp;lis1);<br />
+					lis_copy(&amp;lis1, &amp;lis0);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+					lis1 = lis2;
+				</code>
+			</td>
+			<td>
+				<code>
+					lis_copy(&amp;lis1, &amp;lis2);
+				</code>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
 					lis.clear();
 				</code>
 			</td>
@@ -288,44 +341,6 @@
 			<td>
 				<code>
 					lis_delete(plis);
-				</code>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<code>
-					std::list&lt;DATA_T&gt; lis1 = lis0;
-				</code>
-			</td>
-			<td>
-				<code>
-					lis_init(&amp;lis1);<br />
-					lis_copy(&amp;lis1, &amp;lis0);
-				</code>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<code>
-					std::list&lt;DATA_T&gt; lis1(lis0);
-				</code>
-			</td>
-			<td>
-				<code>
-					lis_init(&amp;lis1);<br />
-					lis_copy(&amp;lis1, &amp;lis0);
-				</code>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<code>
-					lis1 = lis2;
-				</code>
-			</td>
-			<td>
-				<code>
-					lis_copy(&amp;lis1, &amp;lis2);
 				</code>
 			</td>
 		</tr>
@@ -533,7 +548,7 @@
 			</td>
 			<td>
 				<code>
-					PNOD it = nod_advance(it, 5);
+					it = nod_advance(it, 5);
 				</code>
 			</td>
 		</tr>

@@ -52,8 +52,8 @@ PNOD nod_prev_of(PNOD p, PNOD here);
 /****************************************************************************/
 /* function macros */
 
-#define nod_data(p)          ((void *)&(((PNOD)p)[1]))
-#define nod_const_data(p)    ((const void *)&(((const NOD*)p)[1]))
+#define nod_data(p)          ((void *)&(((PNOD)(p))[1]))
+#define nod_const_data(p)    ((const void *)&(((const NOD *)(p))[1]))
 #define nod_data_size(p)     ((p)->data_size)
 #define nod_delete(p)        free(p)
 

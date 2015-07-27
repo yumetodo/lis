@@ -144,21 +144,14 @@ PNOD nod_prev_of(PNOD p, PNOD here)
     PNOD prev = NULL;
     if (here != NULL)
     {
-        if (here->prev != NULL)
+        prev = p;
+        while (prev != NULL)
         {
-            prev = here->prev;
-        }
-        else
-        {
-            prev = p;
-            while (prev != NULL)
+            if (prev->next == here)
             {
-                if (prev->next == here)
-                {
-                    break;
-                }
-                prev = prev->next;
+                break;
             }
+            prev = prev->next;
         }
     }
     return prev;
