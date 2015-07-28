@@ -29,14 +29,14 @@
 /****************************************************************************/
 /* Do you wanna status return? */
 
-#ifdef LIS_WANT_STATUS_RETURN
-    #define LIS_STATUS_INIT(ret,value)  lis_bool ret = (value)
-    #define LIS_STATUS_SET(ret,value)   ret = (value)
-    #define LIS_STATUS_RETURN(ret)      return ret
-#else
+#ifdef LIS_QUICK_BUT_RISKY
     #define LIS_STATUS_INIT(ret,value)  /* empty */
     #define LIS_STATUS_SET(ret,value)   /* empty */
     #define LIS_STATUS_RETURN(ret)      /* empty */
+#else
+    #define LIS_STATUS_INIT(ret,value)  lis_bool ret = (value)
+    #define LIS_STATUS_SET(ret,value)   ret = (value)
+    #define LIS_STATUS_RETURN(ret)      return ret
 #endif
 
 /****************************************************************************/
@@ -164,10 +164,10 @@ lis_bool lis_construct(PLIS pl, size_t data_size,
     assert(pl != NULL);
     lis_init(pl);
 
-#ifdef LIS_WANT_STATUS_RETURN
-    if (lis_resize(pl, num_items, NULL, data_size))
-#else
+#ifdef LIS_QUICK_BUT_RISKY
     lis_resize(pl, num_items, NULL, data_size);
+#else
+    if (lis_resize(pl, num_items, NULL, data_size))
 #endif
     {
         pn = pl->first;
@@ -384,14 +384,14 @@ lis_bool lis_resize(PLIS pl, size_t count, const void *data, size_t data_size)
         diff = count - pl->count;
         while (diff > 0)
         {
-#ifdef LIS_WANT_STATUS_RETURN
+#ifdef LIS_QUICK_BUT_RISKY
+            lis_push_back(pl, data, data_size);
+#else
             if (lis_push_back(pl, data, data_size) == false)
             {
                 LIS_STATUS_SET(ret, false);
                 break;
             }
-#else
-            lis_push_back(pl, data, data_size);
 #endif
             --diff;
         }
@@ -445,17 +445,16 @@ lis_bool lis_assign(PLIS pl, size_t count, const void *data, size_t data_size)
     assert(lis_valid(pl));
     lis_init(&lis);
 
-#ifdef LIS_WANT_STATUS_RETURN
+#ifdef LIS_QUICK_BUT_RISKY
+    lis_resize(&lis, count, data, data_size);
+#else
     if (lis_resize(&lis, count, data, data_size))
+#endif
     {
+        lis_swap(&lis, pl);
+        lis_destroy(&lis);
         LIS_STATUS_SET(ret, true);
     }
-#else
-    lis_resize(&lis, count, data, data_size);
-#endif
-
-    lis_swap(&lis, pl);
-    lis_destroy(&lis);
 
     assert(lis_valid(pl));
     LIS_STATUS_RETURN(ret);
@@ -518,10 +517,10 @@ lis_bool lis_insert(PLIS pl, PNOD here,
 
     if (there == NULL)
     {
-#ifdef LIS_WANT_STATUS_RETURN
-        ret = lis_resize(pl, pl->count + count, data, data_size);
-#else
+#ifdef LIS_QUICK_BUT_RISKY
         lis_resize(pl, pl->count + count, data, data_size);
+#else
+        ret = lis_resize(pl, pl->count + count, data, data_size);
 #endif
     }
     else
