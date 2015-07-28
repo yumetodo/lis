@@ -29,8 +29,10 @@ typedef int (*LIS_DATA_COMPARE)(const void *data1, const void *data2);
 /* Do you wanna status return? */
 
 #ifdef LIS_WANT_STATUS_RETURN
+    /* safer but slow */
     typedef bool lis_bool;
 #else
+    /* speedy but dangerous */
     typedef void lis_bool;
 #endif
 
