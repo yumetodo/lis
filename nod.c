@@ -23,7 +23,7 @@
 
 PNOD nod_new(const void *data, size_t data_size)
 {
-    PNOD p = (PNOD)calloc(sizeof(NOD) + data_size, 1);
+    PNOD p = (PNOD)malloc(sizeof(NOD) + data_size);
     if (p != NULL)
     {
         p->next = NULL;
@@ -32,6 +32,14 @@ PNOD nod_new(const void *data, size_t data_size)
         if (data != NULL)
         {
             memcpy(nod_data(p), data, data_size);
+        }
+        else
+        {
+#ifdef NOD_NO_ZERO_INIT
+            ;
+#else
+            memset(nod_data(p), 0, data_size);
+#endif
         }
     }
     return p;

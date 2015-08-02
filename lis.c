@@ -264,7 +264,7 @@ void lis_clear(PLIS pl)
 
 PLIS lis_new(void)
 {
-    PLIS pl = (PLIS)calloc(sizeof(LIS), 1);
+    PLIS pl = (PLIS)malloc(sizeof(LIS));
     if (pl != NULL)
     {
         lis_init(pl);
