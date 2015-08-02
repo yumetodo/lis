@@ -3,13 +3,21 @@
 /****************************************************************************/
 
 #ifndef KATAHIROMZ_NOD_H
-#define KATAHIROMZ_NOD_H    1  /* Version 1 */
+#define KATAHIROMZ_NOD_H    3  /* Version 3 */
 
 #ifdef __cplusplus
-    #include <cstddef>
+    #include <cstdlib>
+    #include <cassert>
+    #include <cstring>
 #else
-    #include <stddef.h>     /* for size_t */
+    #include <stdlib.h>
+    #include <assert.h>
+    #include <string.h>
     #include <stdbool.h>    /* for bool, false, true */
+#endif
+
+#ifdef MISRA_C
+    #error You cannot use nod in MISRA-C. You lose.
 #endif
 
 /****************************************************************************/

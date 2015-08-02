@@ -5,17 +5,8 @@
 /* 2015.07.22: katahiromz creates v0.                                       */
 /* 2015.07.25: katahiromz creates v1.                                       */
 /* 2015.07.26: katahiromz creates v2.                                       */
+/* 2015.08.02: katahiromz creates v3.                                       */
 /****************************************************************************/
-
-#ifdef __cplusplus
-    #include <cstdlib>
-    #include <cstring>
-    #include <cassert>
-#else
-    #include <stdlib.h>
-    #include <string.h>
-    #include <assert.h>
-#endif
 
 #include "lis.h"
 
@@ -27,16 +18,11 @@
 #endif
 
 /****************************************************************************/
-/* Do you wanna status return? */
+/* C/C++ switching */
 
-#ifdef LIS_QUICK_BUT_RISKY
-    #define LIS_STATUS_INIT(ret,value)  /* empty */
-    #define LIS_STATUS_SET(ret,value)   /* empty */
-    #define LIS_STATUS_RETURN(ret)      /* empty */
-#else
-    #define LIS_STATUS_INIT(ret,value)  lis_bool ret = (value)
-    #define LIS_STATUS_SET(ret,value)   ret = (value)
-    #define LIS_STATUS_RETURN(ret)      return ret
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
 /****************************************************************************/
@@ -53,21 +39,18 @@ bool lis_valid(const LIS *pl)
     {
         ret = false;
     }
+    else if (pl->count == 0U)
+    {
+        if ((pl->first != NULL) || (pl->last != NULL))
+        {
+            ret = false;
+        }
+    }
     else
     {
-        if (pl->count == 0U)
+        if ((pl->first == NULL) || (pl->last == NULL))
         {
-            if ((pl->first != NULL) || (pl->last != NULL))
-            {
-                ret = false;
-            }
-        }
-        else
-        {
-            if ((pl->first == NULL) || (pl->last == NULL))
-            {
-                ret = false;
-            }
+            ret = false;
         }
     }
 
@@ -142,8 +125,6 @@ bool lis_is_sorted(const LIS *pl, LIS_DATA_COMPARE compare)
     return ret;
 } /* lis_is_sorted */
 
-/****************************************************************************/
-
 void lis_init(PLIS pl)
 {
     assert(pl != NULL);
@@ -152,91 +133,6 @@ void lis_init(PLIS pl)
     pl->count = 0U;
     assert(lis_valid(pl));
 } /* lis_init */
-
-lis_bool lis_construct(PLIS pl, size_t data_size,
-                       size_t num_items, const void *items)
-{
-    PNOD pn;
-    size_t i;
-    char *p;
-    LIS_STATUS_INIT(ret, false);
-
-    assert(pl != NULL);
-    lis_init(pl);
-
-#ifdef LIS_QUICK_BUT_RISKY
-    lis_resize(pl, num_items, NULL, data_size);
-#else
-    if (lis_resize(pl, num_items, NULL, data_size))
-#endif
-    {
-        pn = pl->first;
-        i = 0;
-        p = (char *)items;
-        while (pn != NULL)
-        {
-            memcpy(nod_data(pn), &p[i * data_size], data_size);
-            ++i;
-        }
-        LIS_STATUS_SET(ret, true);
-    }
-
-    LIS_STATUS_RETURN(ret);
-} /* lis_construct */
-
-lis_bool lis_copy(PLIS dest, const LIS *src)
-{
-    PNOD pn, created;
-    LIS_STATUS_INIT(ret, true);
-
-    assert(lis_valid(dest));
-    assert(lis_valid(src));
-
-    lis_clear(dest);
-
-    pn = src->first;
-    if (pn != NULL)
-    {
-        created = nod_clone(pn);
-        if (created)
-        {
-            dest->first = created;
-            dest->last = created;
-            dest->count = 1U;
-
-            for (;;)
-            {
-                pn = pn->next;
-                if (pn == NULL)
-                {
-                    break;
-                }
-
-                created = nod_clone(pn);
-                if (created == NULL)
-                {
-                    /* status bad */
-                    lis_status_bad(dest);
-                    LIS_STATUS_SET(ret, false);
-                    break;
-                }
-                dest->last->next = created;
-                dest->last = created;
-                dest->count += 1U;
-            }
-        }
-        else
-        {
-            /* status bad */
-            lis_status_bad(dest);
-            LIS_STATUS_SET(ret, false);
-        }
-    }
-
-    assert(lis_valid(dest));
-    assert(lis_valid(src));
-    LIS_STATUS_RETURN(ret);
-} /* lis_copy */
 
 PLIS lis_clone(PLIS pl)
 {
@@ -372,6 +268,195 @@ lis_bool lis_pop_front(PLIS pl)
     LIS_STATUS_RETURN(ret);
 } /* lis_pop_front */
 
+void lis_insert_nod(PLIS pl, PNOD here, PNOD pn)
+{
+    PNOD prev;
+
+    assert(lis_valid(pl));
+    assert(pn != NULL);
+    assert(lis_contains(pl, here));
+
+    if (pl->count == 0L)
+    {
+        pn->next = NULL;
+        pl->first = pn;
+        pl->last = pn;
+    }
+    else
+    {
+        if (here == NULL)
+        {
+            pl->last->next = pn;
+            pn->next = NULL;
+            pl->last = pn;
+        }
+        else if (here == pl->first)
+        {
+            pn->next = here;
+            pl->first = pn;
+        }
+        else
+        {
+            /*
+             * prev    --    here
+             *
+             * prev -- pn -- here
+             */
+            prev = nod_prev_of(pl->first, here);
+            assert(prev != NULL);
+            prev->next = pn;
+            pn->next = here;
+        }
+    }
+    pl->count += 1U;
+
+    assert(lis_valid(pl));
+} /* lis_insert_nod */
+
+void lis_sort(PLIS pl, LIS_DATA_COMPARE compare)
+{
+    PNOD pn;
+
+    assert(lis_valid(pl));
+    assert(compare != NULL);
+
+    if (pl->count > 1U)
+    {
+        pn = pl->first;
+        pn = lis_sort_nod(pn, compare);
+
+        pl->first = pn;
+        pl->last = nod_chain_last(pn);
+    }
+
+    assert(lis_valid(pl));
+    assert(lis_is_sorted(pl, compare));
+} /* lis_sort */
+
+void lis_merge(PLIS pl1, PLIS pl2, LIS_DATA_COMPARE compare)
+{
+    PNOD pn;
+    assert(lis_is_sorted(pl1, compare));
+    assert(lis_is_sorted(pl2, compare));
+    assert(compare != NULL);
+
+    pn = lis_merge_nod(pl1->first, pl2->first, compare);
+
+    pl1->first = pn;
+    pl1->last = nod_chain_last(pn);
+    pl1->count += pl2->count;
+
+    pl2->first = NULL;
+    pl2->last = NULL;
+    pl2->count = 0U;
+
+    assert(lis_is_sorted(pl1, compare));
+    assert(lis_size(pl2) == 0U);
+} /* lis_merge */
+
+void lis_swap(PLIS pl1, PLIS pl2)
+{
+    LIS lis;
+
+    assert(lis_valid(pl1));
+    assert(lis_valid(pl2));
+
+    if (pl1 != pl2)
+    {
+        lis = *pl1;
+        *pl1 = *pl2;
+        *pl2 = lis;
+    }
+
+    assert(lis_valid(pl1));
+    assert(lis_valid(pl2));
+} /* lis_swap */
+
+lis_bool lis_construct(PLIS pl, size_t data_size,
+                       size_t num_items, const void *items)
+{
+    PNOD pn;
+    size_t i;
+    char *p;
+    LIS_STATUS_INIT(ret, false);
+
+    assert(pl != NULL);
+    lis_init(pl);
+
+#ifdef LIS_QUICK_BUT_RISKY
+    lis_resize(pl, num_items, NULL, data_size);
+#else
+    if (lis_resize(pl, num_items, NULL, data_size))
+#endif
+    {
+        pn = pl->first;
+        i = 0;
+        p = (char *)items;
+        while (pn != NULL)
+        {
+            memcpy(nod_data(pn), &p[i * data_size], data_size);
+            ++i;
+        }
+        LIS_STATUS_SET(ret, true);
+    }
+
+    LIS_STATUS_RETURN(ret);
+} /* lis_construct */
+
+lis_bool lis_copy(PLIS dest, const LIS *src)
+{
+    PNOD pn, created;
+    LIS_STATUS_INIT(ret, true);
+
+    assert(lis_valid(dest));
+    assert(lis_valid(src));
+
+    lis_clear(dest);
+
+    pn = src->first;
+    if (pn != NULL)
+    {
+        created = nod_clone(pn);
+        if (created)
+        {
+            dest->first = created;
+            dest->last = created;
+            dest->count = 1U;
+
+            for (;;)
+            {
+                pn = pn->next;
+                if (pn == NULL)
+                {
+                    break;
+                }
+
+                created = nod_clone(pn);
+                if (created == NULL)
+                {
+                    /* status bad */
+                    lis_status_bad(dest);
+                    LIS_STATUS_SET(ret, false);
+                    break;
+                }
+                dest->last->next = created;
+                dest->last = created;
+                dest->count += 1U;
+            }
+        }
+        else
+        {
+            /* status bad */
+            lis_status_bad(dest);
+            LIS_STATUS_SET(ret, false);
+        }
+    }
+
+    assert(lis_valid(dest));
+    assert(lis_valid(src));
+    LIS_STATUS_RETURN(ret);
+} /* lis_copy */
+
 lis_bool lis_resize(PLIS pl, size_t count, const void *data, size_t data_size)
 {
     size_t diff;
@@ -459,51 +544,6 @@ lis_bool lis_assign(PLIS pl, size_t count, const void *data, size_t data_size)
     assert(lis_valid(pl));
     LIS_STATUS_RETURN(ret);
 } /* lis_assign */
-
-void lis_insert_nod(PLIS pl, PNOD here, PNOD pn)
-{
-    PNOD prev;
-
-    assert(lis_valid(pl));
-    assert(pn != NULL);
-    assert(lis_contains(pl, here));
-
-    if (pl->count == 0L)
-    {
-        pn->next = NULL;
-        pl->first = pn;
-        pl->last = pn;
-    }
-    else
-    {
-        if (here == NULL)
-        {
-            pl->last->next = pn;
-            pn->next = NULL;
-            pl->last = pn;
-        }
-        else if (here == pl->first)
-        {
-            pn->next = here;
-            pl->first = pn;
-        }
-        else
-        {
-            /*
-             * prev    --    here
-             *
-             * prev -- pn -- here
-             */
-            prev = nod_prev_of(pl->first, here);
-            assert(prev != NULL);
-            prev->next = pn;
-            pn->next = here;
-        }
-    }
-    pl->count += 1U;
-
-    assert(lis_valid(pl));
-} /* lis_insert_nod */
 
 lis_bool lis_insert(PLIS pl, PNOD here,
                     size_t count, const void *data, size_t data_size)
@@ -718,24 +758,6 @@ void lis_remove(PLIS pl, const void *data, LIS_DATA_COMPARE compare)
     assert(lis_valid(pl));
 } /* lis_remove */
 
-void lis_swap(PLIS pl1, PLIS pl2)
-{
-    LIS lis;
-
-    assert(lis_valid(pl1));
-    assert(lis_valid(pl2));
-
-    if (pl1 != pl2)
-    {
-        lis = *pl1;
-        *pl1 = *pl2;
-        *pl2 = lis;
-    }
-
-    assert(lis_valid(pl1));
-    assert(lis_valid(pl2));
-} /* lis_swap */
-
 void lis_foreach(PLIS pl, LIS_FOREACH fn)
 {
     PNOD pn = pl->first;
@@ -789,27 +811,6 @@ PNOD lis_merge_nod(PNOD x, PNOD y, LIS_DATA_COMPARE compare)
     return head.next;
 } /* lis_merge_nod */
 
-void lis_merge(PLIS pl1, PLIS pl2, LIS_DATA_COMPARE compare)
-{
-    PNOD pn;
-    assert(lis_is_sorted(pl1, compare));
-    assert(lis_is_sorted(pl2, compare));
-    assert(compare != NULL);
-
-    pn = lis_merge_nod(pl1->first, pl2->first, compare);
-
-    pl1->first = pn;
-    pl1->last = nod_chain_last(pn);
-    pl1->count += pl2->count;
-
-    pl2->first = NULL;
-    pl2->last = NULL;
-    pl2->count = 0U;
-
-    assert(lis_is_sorted(pl1, compare));
-    assert(lis_size(pl2) == 0U);
-} /* lis_merge */
-
 PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare)
 {
     PNOD x, y, ret = pn;
@@ -841,26 +842,6 @@ PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare)
     return ret;
 } /* lis_sort_nod */
 
-void lis_sort(PLIS pl, LIS_DATA_COMPARE compare)
-{
-    PNOD pn;
-
-    assert(lis_valid(pl));
-    assert(compare != NULL);
-
-    if (pl->count > 1U)
-    {
-        pn = pl->first;
-        pn = lis_sort_nod(pn, compare);
-
-        pl->first = pn;
-        pl->last = nod_chain_last(pn);
-    }
-
-    assert(lis_valid(pl));
-    assert(lis_is_sorted(pl, compare));
-} /* lis_sort */
-
 void lis_splice(PLIS pl, PNOD here, PLIS other, PNOD it)
 {
     assert(lis_valid(pl));
@@ -891,6 +872,13 @@ void lis_splice_range(PLIS pl, PNOD here, PLIS other, PNOD begin, PNOD end)
     assert(lis_valid(pl));
     assert(lis_valid(other));
 } /* lis_splice_range */
+
+/****************************************************************************/
+/* C/C++ switching */
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 /****************************************************************************/
 /* test and sample */

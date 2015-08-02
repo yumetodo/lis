@@ -3,7 +3,7 @@
 /****************************************************************************/
 
 #ifndef KATAHIROMZ_LIS_H
-#define KATAHIROMZ_LIS_H    2  /* Version 2 */
+#define KATAHIROMZ_LIS_H    3  /* Version 3 */
 
 #ifndef KATAHIROMZ_NOD_H
     #include "nod.h"
@@ -31,9 +31,15 @@ typedef int (*LIS_DATA_COMPARE)(const void *data1, const void *data2);
 #ifdef LIS_QUICK_BUT_RISKY
     /* speedy but dangerous */
     typedef void lis_bool;
+    #define LIS_STATUS_INIT(ret,value)  /* empty */
+    #define LIS_STATUS_SET(ret,value)   /* empty */
+    #define LIS_STATUS_RETURN(ret)      /* empty */
 #else
     /* safer but slow */
     typedef bool lis_bool;
+    #define LIS_STATUS_INIT(ret,value)  lis_bool ret = (value)
+    #define LIS_STATUS_SET(ret,value)   ret = (value)
+    #define LIS_STATUS_RETURN(ret)      return ret
 #endif
 
 /****************************************************************************/
