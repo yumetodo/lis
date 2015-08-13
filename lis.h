@@ -3,7 +3,7 @@
 /****************************************************************************/
 
 #ifndef KATAHIROMZ_LIS_H
-#define KATAHIROMZ_LIS_H    3  /* Version 3 */
+#define KATAHIROMZ_LIS_H    4  /* Version 4 */
 
 #ifndef KATAHIROMZ_NOD_H
     #include "nod.h"

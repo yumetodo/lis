@@ -3,7 +3,7 @@
 /****************************************************************************/
 
 #ifndef KATAHIROMZ_NOD_H
-#define KATAHIROMZ_NOD_H    3  /* Version 3 */
+#define KATAHIROMZ_NOD_H    4  /* Version 4 */
 
 #ifdef __cplusplus
     #include <cstdlib>
@@ -13,7 +13,7 @@
     #include <stdlib.h>
     #include <assert.h>
     #include <string.h>
-    #include <stdbool.h>    /* for bool, false, true */
+    #include "pstdbool.h"
 #endif
 
 #ifdef MISRA_C
