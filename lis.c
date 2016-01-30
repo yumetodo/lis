@@ -841,36 +841,113 @@ PNOD lis_sort_nod(PNOD pn, LIS_DATA_COMPARE compare)
     }
     return ret;
 } /* lis_sort_nod */
-
+/* void splice (const_iterator position, list& x, const_iterator i); */
 void lis_splice(PLIS pl, PNOD here, PLIS other, PNOD it)
 {
-    assert(lis_valid(pl));
+	assert(lis_valid(pl));
     assert(lis_valid(other));
     assert(pl != other);
+	/* issue : lis_end(pl) is NULL so that I cannot insert node.*/
     assert(here == NULL || lis_contains(pl, here));
     assert(it == NULL || lis_contains(other, it));
+	if (it == other->first)
+	{
+		other->first = other->first->next;
+	}
+	else if (it == other->last)
+	{
+		other->last = other->last->prev;
+	}
+	/* remove node */
+	it->prev->next = it->next;
+	it->next->prev = it->prev;
+	--other->count;
 
-    /* TODO: ... */
+	/* modify insert node info and split */
+	it->prev = here->prev;
+	it->next = here;
+
+	/* insert node */
+	/* issue : how to detect end iterator? */
+	if (here == pl->first)
+	{
+		pl->first = it;
+	}
+	/* issue : lis_end(pl) is NULL so that I cannot insert node.
+	else if (here == lis_end(pl))
+	{
+		lis_end(pl)->prev = it;
+	}
+	*/
+	here->prev->next = it;
+	here->prev = it;
+	++pl->count;
+
     assert(0);
-    lis_clear(other);
+    /*lis_clear(other); Why you destroy list?*/
 
     assert(lis_valid(pl));
     assert(lis_valid(other));
 } /* lis_splice */
 
+static bool node_traceable(NOD const* const from, NOD const* const to)
+{
+	PNOD nod;
+	while (NULL != (nod = from->next)) if (to == nod) return true;
+	return false;
+}
 void lis_splice_range(PLIS pl, PNOD here, PLIS other, PNOD begin, PNOD end)
 {
     assert(lis_valid(pl));
     assert(lis_valid(other));
     assert(pl != other);
-    assert(here == NULL || lis_contains(pl, here));
+	/* issue : lis_end(pl) is NULL so that I cannot insert node.*/
+	assert(here == NULL || lis_contains(pl, here));
+	if (begin == end || (begin->next == end && begin == end->prev))
+	{
+		lis_splice(pl, here, other, begin);
+	}
+	else {
+		assert(node_traceable(begin, end));
+		if (begin == other->first)
+		{
+			other->first = other->first->next;
+		}
+		else if (end->prev == other->last)
+		{
+			other->last = other->last->prev;
+		}
+		/* remove node */
+		begin->prev->next = end;
+		end->prev = begin->prev;
+		--other->count;
 
-    /* TODO: ... */
-    assert(0);
-    lis_clear(other);
+		/* modify insert node info and split */
+		begin->prev = here->prev;
+		end->prev->next = here;
 
-    assert(lis_valid(pl));
-    assert(lis_valid(other));
+		/* insert node */
+		/* issue : how to detect end iterator? */
+		if (here == pl->first)
+		{
+			pl->first = begin;
+		}
+		/* issue : lis_end(pl) is NULL so that I cannot insert node.
+		else if (here == lis_end(pl))
+		{
+		lis_end(pl)->prev = it;
+		}
+		*/
+		here->prev->next = begin;
+		here->prev = end->prev;
+		++pl->count;
+
+		assert(0);
+		/*lis_clear(other); Why you destroy list?*/
+
+		assert(lis_valid(pl));
+		assert(lis_valid(other));
+	}
 } /* lis_splice_range */
 
 /****************************************************************************/
